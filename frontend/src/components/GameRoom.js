@@ -13,15 +13,25 @@ export default function GameRoom() {
     const [answers, setAnswers] = useState([]);
 
     useEffect(() => {
+        // Слушаем событие для обновления списка игроков
         socket.on('updatePlayers', (updatedPlayers) => setPlayers(updatedPlayers));
+
+        // Слушаем логи
         socket.on('log', (message) => setLogs((prevLogs) => [...prevLogs, message]));
+
+        // Слушаем новое задание вопроса
         socket.on('question', ({ newQuestion, possibleAnswers }) => {
             setQuestion(newQuestion);
             setAnswers(possibleAnswers.map((answer) => ({ ...answer, revealed: false })));
         });
+
+        // Слушаем обновление ответов
         socket.on('revealAnswer', (updatedAnswers) => setAnswers(updatedAnswers));
+
+        // Слушаем событие, которое сообщает, является ли игрок администратором
         socket.on('admin', (isAdminStatus) => setIsAdmin(isAdminStatus));
 
+        // Отписываемся от событий при размонтировании компонента
         return () => socket.off();
     }, []);
 
