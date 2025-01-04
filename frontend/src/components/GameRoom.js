@@ -154,7 +154,7 @@ const styles = {
     borderRadius: "8px",
     backgroundColor: "#ffffff",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-    maxHeight: "300px",
+    height: "fit-content",
   },
   centerColumn: {
     padding: "20px",
