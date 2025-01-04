@@ -4,23 +4,23 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
-require('dotenv').config();
+const io = new Server(server, {
+    cors: {
+      origin: 'https://game-1-rb2y.onrender.com',  // URL фронтенда
+      methods: ['GET', 'POST'],
+      allowedHeaders: ['Content-Type'],
+      credentials: true
+    }
+  });require('dotenv').config();
 const cors = require('cors');
 
 const PORT = process.env.PORT || 4000;
 
-// Настройка CORS
+// Роуты и обработчики для вашего приложения
 app.use(cors({
-    origin: 'https://game-1-rb2y.onrender.com', // Замените '*' на точный URL фронтенда
+    origin: 'https://game-1-rb2y.onrender.com',  // Разрешить только фронтенд домен
     methods: ['GET', 'POST']
-}));
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    next();
-  });
+  }));
 
 // Separate file for questions (questions.js)
 const questions = require('./questions');
