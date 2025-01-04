@@ -35,10 +35,12 @@ let currentQuestionIndex = 0;
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
 
+  // Игрок присоединяется
   socket.on("join", (name) => {
     players.push({ id: socket.id, name, answered: false, score: 0 });
     io.emit("updatePlayers", players);
 
+    // Назначение администратора
     if (!adminId) adminId = socket.id;
     io.to(adminId).emit("admin", true);
 
@@ -50,6 +52,7 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Игрок отправляет ответ
   socket.on("submitAnswer", (answer) => {
     const player = players.find((p) => p.id === socket.id);
     if (player && !player.answered) {
@@ -62,21 +65,28 @@ io.on("connection", (socket) => {
         return similarity >= 0.9 && !a.revealed; // 90% совпадение и ответ не был раскрыт
       });
 
+      // Логируем все ответы
+      io.emit("log", `${player.name} : ${answer}`);
+
+      // Если ответ правильный, обновляем счет и логируем с выделением
       if (matchedAnswer) {
         player.answered = true;
         player.score += matchedAnswer.points;
         matchedAnswer.revealed = true;
 
+        // Логируем правильный ответ с выделением жирным шрифтом
         io.emit(
           "log",
-          `${player.name} написав ${matchedAnswer.text} получает (${matchedAnswer.points} баллов!)`
+          `${player.name} : за <strong>${matchedAnswer.text} получает (${matchedAnswer.points} баллов!)</strong>`
         );
+
         io.emit("revealAnswer", question.answers);
         io.emit("updatePlayers", players);
       }
     }
   });
 
+  // Переход к следующему вопросу
   socket.on("nextQuestion", () => {
     if (currentQuestionIndex + 1 < questions.length) {
       currentQuestionIndex++;
@@ -101,6 +111,7 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Начало новой игры
   socket.on("newGame", () => {
     currentQuestionIndex = 0;
     questions.forEach((q) => {
@@ -123,6 +134,7 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Отключение игрока
   socket.on("disconnect", () => {
     players = players.filter((p) => p.id !== socket.id);
 

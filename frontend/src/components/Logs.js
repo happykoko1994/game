@@ -5,7 +5,9 @@ export default function Logs({ logs }) {
         <div style={styles.logsContainer}>
             <ul style={styles.logsList}>
                 {logs.map((log, index) => (
-                    <li key={index} style={styles.logItem}>{log}</li>
+                    <li key={index} style={styles.logItem}>
+                        <span dangerouslySetInnerHTML={{ __html: log }} />
+                    </li>
                 ))}
             </ul>
         </div>
