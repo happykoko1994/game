@@ -6,8 +6,15 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 require('dotenv').config();
+const cors = require('cors');
 
 const PORT = process.env.PORT || 4000;
+
+// Настройка CORS
+app.use(cors({
+    origin: '*', // Замените '*' на точный URL фронтенда
+    methods: ['GET', 'POST']
+}));
 
 // Separate file for questions (questions.js)
 const questions = require('./questions');
