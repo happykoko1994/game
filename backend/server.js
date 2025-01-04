@@ -82,6 +82,11 @@ io.on("connection", (socket) => {
       currentQuestionIndex++;
       const nextQuestion = questions[currentQuestionIndex];
       players.forEach((p) => (p.answered = false)); // Обнуляем ответы игроков
+      // Сбросим раскрытые ответы на вопросы
+      questions[currentQuestionIndex].answers.forEach(answer => {
+        answer.revealed = false; // Скрываем все ответы для следующего вопроса
+      });
+
       io.emit("question", {
         newQuestion: nextQuestion.text,
         possibleAnswers: nextQuestion.answers,
@@ -92,27 +97,46 @@ io.on("connection", (socket) => {
 
   // Начало новой игры
   socket.on("newGame", () => {
+    // Сброс всех данных для новой игры
     currentQuestionIndex = 0; // Сбрасываем индекс вопроса
-    players.forEach((p) => {
-      p.answered = false; // Сбрасываем ответы
-      p.score = 0; // Сбрасываем баллы
+    questions.forEach((q) => {
+      q.answers.forEach(a => a.revealed = false); // Скрываем все ответы на вопросы
     });
+
+    // Только обнуляем данные, связанные с игрой, игроки остаются на месте
+    players.forEach((player) => {
+      player.answered = false; // Обнуляем ответы игроков
+      player.score = 0; // Сбрасываем баллы
+    });
+
+    io.emit("updatePlayers", players); // Обновляем список игроков
+    io.emit("log", "New game started!"); // Лог о начале новой игры
+
+    // Отправляем первый вопрос новой игры
     if (questions.length > 0) {
       io.emit("question", {
-        newQuestion: questions[0].text, // Отправляем первый вопрос
+        newQuestion: questions[0].text,
         possibleAnswers: questions[0].answers,
       });
     }
-    io.emit("updatePlayers", players); // Обновляем список игроков
-    io.emit("log", "New game started!"); // Лог о начале новой игры
   });
 
+  // Удаление игрока и сброс данных при его отключении
   socket.on("disconnect", () => {
     players = players.filter((p) => p.id !== socket.id);
+
+    // Если игрок был администратором, назначаем нового
     if (socket.id === adminId && players.length > 0) {
       adminId = players[0].id;
       io.to(adminId).emit("admin", true);
     }
+
+    // Если нет игроков, сбрасываем все данные (пустая игра)
+    if (players.length === 0) {
+      currentQuestionIndex = 0;
+      io.emit("log", "Lobby is empty. Data reset.");
+    }
+
     io.emit("updatePlayers", players);
   });
 });
