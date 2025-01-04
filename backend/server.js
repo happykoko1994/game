@@ -8,17 +8,6 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 4000;
 
-// Настройка CORS
-app.use(cors({
-    origin: '*', // Замените '*' на точный URL фронтенда
-    methods: ['GET', 'POST']
-}));
-
-// Простая проверка работы сервера
-app.get('/', (req, res) => {
-    res.send('Server is running!');
-});
-
 // Separate file for questions (questions.js)
 const questions = require('./questions');
 
