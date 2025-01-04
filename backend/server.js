@@ -1,8 +1,6 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-require("dotenv").config();
-const cors = require("cors");
 
 const app = express();
 const server = http.createServer(app);
@@ -14,13 +12,15 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+require("dotenv").config();
+const cors = require("cors");
 
 const PORT = process.env.PORT || 4000;
 
-// Используем CORS middleware для API
+// Роуты и обработчики для вашего приложения
 app.use(
   cors({
-    origin: ['https://game-1-rb2y.onrender.com', 'http://localhost:3000'],
+    origin: ["https://game-1-rb2y.onrender.com", "http://localhost:3000"], // Разрешить только фронтенд домен
     methods: ["GET", "POST"],
   })
 );
@@ -29,6 +29,7 @@ app.use(
 const questions = require("./questions");
 
 let players = [];
+let adminId = null;
 let currentQuestionIndex = 0;
 
 io.on("connection", (socket) => {
@@ -36,10 +37,14 @@ io.on("connection", (socket) => {
 
   // Игрок присоединился
   socket.on("join", (name) => {
-    players.push({ id: socket.id, name, answered: false });
+    players.push({ id: socket.id, name, answered: false, score: 0 }); // Добавляем поле для баллов
     io.emit("updatePlayers", players);
 
-    // Отправляем вопрос
+    // Если нет админа, то назначаем первого игрока администратором
+    if (!adminId) adminId = socket.id;
+    io.to(adminId).emit("admin", true);
+
+    // Отправляем первый вопрос
     if (currentQuestionIndex < questions.length) {
       io.emit("question", {
         newQuestion: questions[currentQuestionIndex].text,
@@ -58,6 +63,7 @@ io.on("connection", (socket) => {
       );
       if (matchedAnswer) {
         player.answered = true;
+        player.score += matchedAnswer.points; // Добавляем баллы
         io.emit(
           "log",
           `${player.name} guessed: ${matchedAnswer.text} (${matchedAnswer.points} points)`
@@ -71,7 +77,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Переход к следующему вопросу (теперь доступно всем игрокам)
+  // Переход к следующему вопросу
   socket.on("nextQuestion", () => {
     if (currentQuestionIndex + 1 < questions.length) {
       currentQuestionIndex++;
@@ -85,10 +91,13 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Начало новой игры (теперь доступно всем игрокам)
+  // Начало новой игры
   socket.on("newGame", () => {
     currentQuestionIndex = 0;
-    players.forEach((p) => (p.answered = false));
+    players.forEach((p) => {
+      p.answered = false;
+      p.score = 0; // Сбрасываем баллы
+    });
     if (questions.length > 0) {
       io.emit("question", {
         newQuestion: questions[0].text,
@@ -99,9 +108,12 @@ io.on("connection", (socket) => {
     io.emit("log", "New game started!");
   });
 
-  // Игрок отключился
   socket.on("disconnect", () => {
     players = players.filter((p) => p.id !== socket.id);
+    if (socket.id === adminId && players.length > 0) {
+      adminId = players[0].id;
+      io.to(adminId).emit("admin", true);
+    }
     io.emit("updatePlayers", players);
   });
 });

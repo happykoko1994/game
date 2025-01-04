@@ -7,7 +7,7 @@ export default function PlayerList({ players }) {
             <ul>
                 {players.map((player, index) => (
                     <li key={index} style={{ color: player.answered ? 'green' : 'black' }}>
-                        {player.name}
+                        {player.name} - {player.score} points {/* Отображаем баллы */}
                     </li>
                 ))}
             </ul>
