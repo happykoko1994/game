@@ -10,8 +10,10 @@ export default function GameRoom() {
     const [logs, setLogs] = useState([]);
     const [question, setQuestion] = useState('');
     const [answers, setAnswers] = useState([]);
+    const [answer, setAnswer] = useState(''); // Состояние для текущего ответа
 
     useEffect(() => {
+        // Слушаем события от сервера
         socket.on('updatePlayers', (updatedPlayers) => setPlayers(updatedPlayers));
         socket.on('log', (message) => setLogs((prevLogs) => [...prevLogs, message]));
         socket.on('question', ({ newQuestion, possibleAnswers }) => {
@@ -23,14 +25,20 @@ export default function GameRoom() {
         return () => socket.off();
     }, []);
 
-    const handleAnswerSubmit = (answer) => {
-        socket.emit('submitAnswer', answer);
+    // Отправка ответа на сервер
+    const handleAnswerSubmit = () => {
+        if (answer.trim()) {
+            socket.emit('submitAnswer', answer);
+            setAnswer(''); // Очищаем поле после отправки
+        }
     };
 
+    // Переход к следующему вопросу
     const handleNextQuestion = () => {
         socket.emit('nextQuestion');
     };
 
+    // Начало новой игры
     const handleNewGame = () => {
         socket.emit('newGame');
     };
@@ -48,10 +56,13 @@ export default function GameRoom() {
                 <input
                     type="text"
                     placeholder="Enter your answer"
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)} // Обновление состояния ответа
                     onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleAnswerSubmit(e.target.value);
+                        if (e.key === 'Enter') handleAnswerSubmit(); // Отправка при нажатии Enter
                     }}
                 />
+                <button onClick={handleAnswerSubmit}>Enter</button> {/* Кнопка для отправки ответа */}
             </div>
 
             <AdminControls

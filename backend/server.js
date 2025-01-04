@@ -12,6 +12,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+
 require("dotenv").config();
 const cors = require("cors");
 
@@ -37,7 +38,7 @@ io.on("connection", (socket) => {
 
   // Игрок присоединился
   socket.on("join", (name) => {
-    players.push({ id: socket.id, name, answered: false, score: 0, answer: null }); // Добавляем поле для ответа
+    players.push({ id: socket.id, name, answered: false, score: 0 }); // Добавляем поле для баллов
     io.emit("updatePlayers", players);
 
     // Если нет админа, то назначаем первого игрока администратором
@@ -61,25 +62,16 @@ io.on("connection", (socket) => {
       const matchedAnswer = question.answers.find(
         (a) => a.text.toLowerCase() === answer.toLowerCase()
       );
-      
-      // Проверка, был ли уже выбран этот ответ другим игроком
-      if (matchedAnswer && !question.answers.some((a) => a.revealed && a.text === matchedAnswer.text)) {
+      if (matchedAnswer) {
         player.answered = true;
-        player.answer = matchedAnswer.text; // Сохраняем ответ игрока
         player.score += matchedAnswer.points; // Добавляем баллы
-
         io.emit(
           "log",
           `${player.name} guessed: ${matchedAnswer.text} (${matchedAnswer.points} points)`
         );
-
-        // Обновляем только правильный ответ
         question.answers = question.answers.map((a) =>
-          a.text === matchedAnswer.text
-            ? { ...a, revealed: true }
-            : { ...a, revealed: a.revealed || false } // Только раскрытые ответы остаются
+          a.text === matchedAnswer.text ? { ...a, revealed: true } : a
         );
-
         io.emit("revealAnswer", question.answers);
       }
       io.emit("updatePlayers", players);
@@ -91,10 +83,7 @@ io.on("connection", (socket) => {
     if (currentQuestionIndex + 1 < questions.length) {
       currentQuestionIndex++;
       const nextQuestion = questions[currentQuestionIndex];
-      players.forEach((p) => {
-        p.answered = false;
-        p.answer = null; // Сбрасываем ответ каждого игрока
-      });
+      players.forEach((p) => (p.answered = false)); // Обнуляем ответы игроков
       io.emit("question", {
         newQuestion: nextQuestion.text,
         possibleAnswers: nextQuestion.answers,
@@ -105,20 +94,19 @@ io.on("connection", (socket) => {
 
   // Начало новой игры
   socket.on("newGame", () => {
-    currentQuestionIndex = 0;
+    currentQuestionIndex = 0; // Сбрасываем индекс вопроса
     players.forEach((p) => {
-      p.answered = false;
+      p.answered = false; // Сбрасываем ответы
       p.score = 0; // Сбрасываем баллы
-      p.answer = null; // Сбрасываем ответ
     });
     if (questions.length > 0) {
       io.emit("question", {
-        newQuestion: questions[0].text,
+        newQuestion: questions[0].text, // Отправляем первый вопрос
         possibleAnswers: questions[0].answers,
       });
     }
-    io.emit("updatePlayers", players);
-    io.emit("log", "New game started!");
+    io.emit("updatePlayers", players); // Обновляем список игроков
+    io.emit("log", "New game started!"); // Лог о начале новой игры
   });
 
   socket.on("disconnect", () => {
