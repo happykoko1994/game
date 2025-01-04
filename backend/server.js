@@ -12,9 +12,15 @@ const PORT = process.env.PORT || 4000;
 
 // Настройка CORS
 app.use(cors({
-    origin: '*', // Замените '*' на точный URL фронтенда
+    origin: 'https://game-1-rb2y.onrender.com', // Замените '*' на точный URL фронтенда
     methods: ['GET', 'POST']
 }));
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    next();
+  });
 
 // Separate file for questions (questions.js)
 const questions = require('./questions');
