@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
+const stringSimilarity = require("string-similarity");
 
 const app = express();
 const server = http.createServer(app);
@@ -18,15 +19,13 @@ const cors = require("cors");
 
 const PORT = process.env.PORT || 4000;
 
-// Роуты и обработчики для вашего приложения
 app.use(
   cors({
-    origin: ["https://game-1-rb2y.onrender.com", "http://localhost:3000"], // Разрешить только фронтенд домен
+    origin: ["https://game-1-rb2y.onrender.com", "http://localhost:3000"],
     methods: ["GET", "POST"],
   })
 );
 
-// Separate file for questions (questions.js)
 const questions = require("./questions");
 
 let players = [];
@@ -36,16 +35,13 @@ let currentQuestionIndex = 0;
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
 
-  // Игрок присоединился
   socket.on("join", (name) => {
-    players.push({ id: socket.id, name, answered: false, score: 0 }); // Добавляем поле для баллов
+    players.push({ id: socket.id, name, answered: false, score: 0 });
     io.emit("updatePlayers", players);
 
-    // Если нет админа, то назначаем первого игрока администратором
     if (!adminId) adminId = socket.id;
     io.to(adminId).emit("admin", true);
 
-    // Отправляем первый вопрос
     if (currentQuestionIndex < questions.length) {
       io.emit("question", {
         newQuestion: questions[currentQuestionIndex].text,
@@ -54,18 +50,23 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Игрок отправил свой ответ
   socket.on("submitAnswer", (answer) => {
     const player = players.find((p) => p.id === socket.id);
     if (player && !player.answered) {
       const question = questions[currentQuestionIndex];
-      const matchedAnswer = question.answers.find(
-        (a) => a.text.toLowerCase() === answer.toLowerCase()
-      );
-      if (matchedAnswer && !matchedAnswer.revealed) { // Проверка, что ответ еще не был раскрыт
+      const matchedAnswer = question.answers.find((a) => {
+        const similarity = stringSimilarity.compareTwoStrings(
+          a.text.toLowerCase(),
+          answer.toLowerCase()
+        );
+        return similarity >= 0.9 && !a.revealed; // 90% совпадение и ответ не был раскрыт
+      });
+
+      if (matchedAnswer) {
         player.answered = true;
-        player.score += matchedAnswer.points; // Добавляем баллы
-        matchedAnswer.revealed = true; // Помечаем ответ как раскрытый
+        player.score += matchedAnswer.points;
+        matchedAnswer.revealed = true;
+
         io.emit(
           "log",
           `${player.name} guessed: ${matchedAnswer.text} (${matchedAnswer.points} points)`
@@ -76,15 +77,13 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Переход к следующему вопросу
   socket.on("nextQuestion", () => {
     if (currentQuestionIndex + 1 < questions.length) {
       currentQuestionIndex++;
       const nextQuestion = questions[currentQuestionIndex];
-      players.forEach((p) => (p.answered = false)); // Обнуляем ответы игроков
-      // Сбросим раскрытые ответы на вопросы
-      questions[currentQuestionIndex].answers.forEach(answer => {
-        answer.revealed = false; // Скрываем все ответы для следующего вопроса
+      players.forEach((p) => (p.answered = false));
+      questions[currentQuestionIndex].answers.forEach((answer) => {
+        answer.revealed = false;
       });
 
       io.emit("question", {
@@ -95,24 +94,20 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Начало новой игры
   socket.on("newGame", () => {
-    // Сброс всех данных для новой игры
-    currentQuestionIndex = 0; // Сбрасываем индекс вопроса
+    currentQuestionIndex = 0;
     questions.forEach((q) => {
-      q.answers.forEach(a => a.revealed = false); // Скрываем все ответы на вопросы
+      q.answers.forEach((a) => (a.revealed = false));
     });
 
-    // Только обнуляем данные, связанные с игрой, игроки остаются на месте
     players.forEach((player) => {
-      player.answered = false; // Обнуляем ответы игроков
-      player.score = 0; // Сбрасываем баллы
+      player.answered = false;
+      player.score = 0;
     });
 
-    io.emit("updatePlayers", players); // Обновляем список игроков
-    io.emit("log", "New game started!"); // Лог о начале новой игры
+    io.emit("updatePlayers", players);
+    io.emit("log", "New game started!");
 
-    // Отправляем первый вопрос новой игры
     if (questions.length > 0) {
       io.emit("question", {
         newQuestion: questions[0].text,
@@ -121,17 +116,14 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Удаление игрока и сброс данных при его отключении
   socket.on("disconnect", () => {
     players = players.filter((p) => p.id !== socket.id);
 
-    // Если игрок был администратором, назначаем нового
     if (socket.id === adminId && players.length > 0) {
       adminId = players[0].id;
       io.to(adminId).emit("admin", true);
     }
 
-    // Если нет игроков, сбрасываем все данные (пустая игра)
     if (players.length === 0) {
       currentQuestionIndex = 0;
       io.emit("log", "Lobby is empty. Data reset.");
