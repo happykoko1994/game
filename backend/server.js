@@ -62,19 +62,17 @@ io.on("connection", (socket) => {
       const matchedAnswer = question.answers.find(
         (a) => a.text.toLowerCase() === answer.toLowerCase()
       );
-      if (matchedAnswer) {
+      if (matchedAnswer && !matchedAnswer.revealed) { // Проверка, что ответ еще не был раскрыт
         player.answered = true;
         player.score += matchedAnswer.points; // Добавляем баллы
+        matchedAnswer.revealed = true; // Помечаем ответ как раскрытый
         io.emit(
           "log",
           `${player.name} guessed: ${matchedAnswer.text} (${matchedAnswer.points} points)`
         );
-        question.answers = question.answers.map((a) =>
-          a.text === matchedAnswer.text ? { ...a, revealed: true } : a
-        );
         io.emit("revealAnswer", question.answers);
+        io.emit("updatePlayers", players);
       }
-      io.emit("updatePlayers", players);
     }
   });
 
