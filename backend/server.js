@@ -68,9 +68,14 @@ io.on("connection", (socket) => {
           "log",
           `${player.name} guessed: ${matchedAnswer.text} (${matchedAnswer.points} points)`
         );
+        
+        // Обновляем только выбранный правильный ответ
         question.answers = question.answers.map((a) =>
-          a.text === matchedAnswer.text ? { ...a, revealed: true } : a
+          a.text === matchedAnswer.text
+            ? { ...a, revealed: true }
+            : { ...a, revealed: false } // Все остальные ответы остаются скрытыми
         );
+        
         io.emit("revealAnswer", question.answers);
       }
       io.emit("updatePlayers", players);
