@@ -37,7 +37,7 @@ io.on("connection", (socket) => {
 
   // Игрок присоединился
   socket.on("join", (name) => {
-    players.push({ id: socket.id, name, answered: false, score: 0 }); // Добавляем поле для баллов
+    players.push({ id: socket.id, name, answered: false, score: 0, answer: null }); // Добавляем поле для ответа
     io.emit("updatePlayers", players);
 
     // Если нет админа, то назначаем первого игрока администратором
@@ -61,21 +61,25 @@ io.on("connection", (socket) => {
       const matchedAnswer = question.answers.find(
         (a) => a.text.toLowerCase() === answer.toLowerCase()
       );
-      if (matchedAnswer) {
+      
+      // Проверка, был ли уже выбран этот ответ другим игроком
+      if (matchedAnswer && !question.answers.some((a) => a.revealed && a.text === matchedAnswer.text)) {
         player.answered = true;
+        player.answer = matchedAnswer.text; // Сохраняем ответ игрока
         player.score += matchedAnswer.points; // Добавляем баллы
+
         io.emit(
           "log",
           `${player.name} guessed: ${matchedAnswer.text} (${matchedAnswer.points} points)`
         );
-        
-        // Обновляем только выбранный правильный ответ
+
+        // Обновляем только правильный ответ
         question.answers = question.answers.map((a) =>
           a.text === matchedAnswer.text
             ? { ...a, revealed: true }
-            : { ...a, revealed: false } // Все остальные ответы остаются скрытыми
+            : { ...a, revealed: a.revealed || false } // Только раскрытые ответы остаются
         );
-        
+
         io.emit("revealAnswer", question.answers);
       }
       io.emit("updatePlayers", players);
@@ -87,7 +91,10 @@ io.on("connection", (socket) => {
     if (currentQuestionIndex + 1 < questions.length) {
       currentQuestionIndex++;
       const nextQuestion = questions[currentQuestionIndex];
-      players.forEach((p) => (p.answered = false));
+      players.forEach((p) => {
+        p.answered = false;
+        p.answer = null; // Сбрасываем ответ каждого игрока
+      });
       io.emit("question", {
         newQuestion: nextQuestion.text,
         possibleAnswers: nextQuestion.answers,
@@ -102,6 +109,7 @@ io.on("connection", (socket) => {
     players.forEach((p) => {
       p.answered = false;
       p.score = 0; // Сбрасываем баллы
+      p.answer = null; // Сбрасываем ответ
     });
     if (questions.length > 0) {
       io.emit("question", {
