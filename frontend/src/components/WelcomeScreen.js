@@ -15,11 +15,11 @@ export default function WelcomeScreen() {
 
     return (
         <div style={styles.container}>
-            <h1 style={styles.title}>Добро пожаловать в игру "100 к 1"</h1>
+            <h1 style={styles.title}>Представься и проходи, тебя уже ждут!</h1>
             <div style={styles.inputContainer}>
                 <input
                     type="text"
-                    placeholder="Введите ваше имя"
+                    placeholder="Назови себя"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     style={styles.input}

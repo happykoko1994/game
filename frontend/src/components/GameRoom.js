@@ -116,7 +116,7 @@ export default function GameRoom() {
           }}
           disabled={currentPlayer?.answered}
         >
-          Отправить
+          Кчау
         </button>
       </div>
 
