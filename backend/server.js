@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 4000;
 // Используем CORS middleware для API
 app.use(
   cors({
-    origin: ['https://game-1-rb2y.onrender.com', 'http://localhost:3000'], // Разрешить только указанные фронтенд-домены
+    origin: ['https://game-1-rb2y.onrender.com', 'http://localhost:3000'],
     methods: ["GET", "POST"],
   })
 );
@@ -29,28 +29,15 @@ app.use(
 const questions = require("./questions");
 
 let players = [];
-let adminId = null;
 let currentQuestionIndex = 0;
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
 
-  // Назначаем первого подключившегося игрока администратором
-  if (!adminId) {
-    adminId = socket.id;
-    io.to(adminId).emit("admin", true);
-    console.log(`Admin assigned: ${socket.id}`);
-  }
-
   // Игрок присоединился
   socket.on("join", (name) => {
     players.push({ id: socket.id, name, answered: false });
     io.emit("updatePlayers", players);
-
-    // Назначаем админа, если это первый игрок
-    if (socket.id === adminId) {
-      io.to(adminId).emit("admin", true);
-    }
 
     // Отправляем вопрос
     if (currentQuestionIndex < questions.length) {
@@ -84,7 +71,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Переход к следующему вопросу
+  // Переход к следующему вопросу (теперь доступно всем игрокам)
   socket.on("nextQuestion", () => {
     if (currentQuestionIndex + 1 < questions.length) {
       currentQuestionIndex++;
@@ -98,7 +85,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Начало новой игры
+  // Начало новой игры (теперь доступно всем игрокам)
   socket.on("newGame", () => {
     currentQuestionIndex = 0;
     players.forEach((p) => (p.answered = false));
@@ -115,11 +102,6 @@ io.on("connection", (socket) => {
   // Игрок отключился
   socket.on("disconnect", () => {
     players = players.filter((p) => p.id !== socket.id);
-    if (socket.id === adminId && players.length > 0) {
-      adminId = players[0].id;
-      io.to(adminId).emit("admin", true); // Назначаем нового администратора
-      console.log(`New admin assigned: ${adminId}`);
-    }
     io.emit("updatePlayers", players);
   });
 });

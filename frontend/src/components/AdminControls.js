@@ -1,7 +1,6 @@
 import React from 'react';
 
-export default function AdminControls({ isAdmin, onNextQuestion, onNewGame }) {
-    if (!isAdmin) return null; // Если не администратор, не показывать контролы
+export default function AdminControls({ onNextQuestion, onNewGame }) {
     return (
         <div>
             <button onClick={onNextQuestion}>Next Question</button>
