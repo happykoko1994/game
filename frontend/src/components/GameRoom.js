@@ -4,6 +4,7 @@ import PlayerList from "./PlayerList";
 import Logs from "./Logs";
 import QuestionBlock from "./QuestionBlock";
 import AdminControls from "./AdminControls";
+import WinnerPopup from "./WinnerPopup";
 
 export default function GameRoom() {
   const [players, setPlayers] = useState([]);
@@ -11,7 +12,9 @@ export default function GameRoom() {
   const [question, setQuestion] = useState("");
   const [answers, setAnswers] = useState([]);
   const [answer, setAnswer] = useState("");
-  const [currentPlayer, setCurrentPlayer] = useState(null); // Текущий игрок
+  const [currentPlayer, setCurrentPlayer] = useState(null);
+  const [showWinnerPopup, setShowWinnerPopup] = useState(false);
+  const [winner, setWinner] = useState(null);
 
   useEffect(() => {
     socket.on("updatePlayers", (updatedPlayers) => {
@@ -33,6 +36,11 @@ export default function GameRoom() {
 
     socket.on("revealAnswer", (updatedAnswers) => setAnswers(updatedAnswers));
 
+    socket.on("endGame", ({ winner }) => {
+      setWinner(winner);
+      setShowWinnerPopup(true);
+    });
+
     return () => socket.off();
   }, []);
 
@@ -49,10 +57,21 @@ export default function GameRoom() {
 
   const handleNewGame = () => {
     socket.emit("newGame");
+    setShowWinnerPopup(false);
+    setWinner(null);
+  };
+
+  const handleClosePopup = () => {
+    setShowWinnerPopup(false);
+    setWinner(null);
   };
 
   return (
     <div style={styles.container}>
+      {showWinnerPopup && (
+        <WinnerPopup winner={winner} onClose={handleClosePopup} />
+      )}
+
       <div style={styles.mainGameSection}>
         <div style={styles.leftColumn}>
           <PlayerList players={players} />
@@ -126,7 +145,7 @@ const styles = {
     justifyContent: "space-between",
     width: "100%",
     marginBottom: "20px",
-    marginTop: "10%",
+    marginTop: "50px",
   },
   leftColumn: {
     flex: 1,
@@ -178,10 +197,6 @@ const styles = {
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   },
   adminControlsWrapper: {
-    width: "100%",
-    position: "absolute",
-    bottom: "20px",
-    left: "50%",
-    transform: "translateX(-50%)",
+
   },
 };

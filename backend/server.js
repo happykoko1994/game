@@ -69,7 +69,7 @@ io.on("connection", (socket) => {
 
         io.emit(
           "log",
-          `${player.name} guessed: ${matchedAnswer.text} (${matchedAnswer.points} points)`
+          `${player.name} написав ${matchedAnswer.text} получает (${matchedAnswer.points} баллов!)`
         );
         io.emit("revealAnswer", question.answers);
         io.emit("updatePlayers", players);
@@ -91,6 +91,13 @@ io.on("connection", (socket) => {
         possibleAnswers: nextQuestion.answers,
       });
       io.emit("updatePlayers", players);
+    } else {
+      // Находим победителя
+      const winner = players.reduce((max, player) =>
+        player.score > (max?.score || 0) ? player : max,
+        null
+      );
+      io.emit("endGame", { winner: winner?.name || "No winner" });
     }
   });
 
