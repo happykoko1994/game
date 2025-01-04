@@ -1,6 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function Logs({ logs }) {
+    const logsEndRef = useRef(null);
+
+    useEffect(() => {
+        // Прокручиваем вниз, как только обновляются логи
+        if (logsEndRef.current) {
+            logsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [logs]); // Зависимость от изменения логов
+
     return (
         <div style={styles.logsContainer}>
             <ul style={styles.logsList}>
@@ -10,6 +19,7 @@ export default function Logs({ logs }) {
                     </li>
                 ))}
             </ul>
+            <div ref={logsEndRef} /> {/* Сюда будет прокручиваться */}
         </div>
     );
 }
