@@ -1,7 +1,6 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const stringSimilarity = require("string-similarity");
 
 const app = express();
 const server = http.createServer(app);
@@ -27,6 +26,7 @@ app.use(
 );
 
 const questions = require("./questions");
+const isSimilar = require("./utils/levenshtein"); // Импортируем функцию isSimilar
 
 let players = [];
 let adminId = null;
@@ -58,11 +58,7 @@ io.on("connection", (socket) => {
     if (player && !player.answered) {
       const question = questions[currentQuestionIndex];
       const matchedAnswer = question.answers.find((a) => {
-        const similarity = stringSimilarity.compareTwoStrings(
-          a.text.toLowerCase(),
-          answer.toLowerCase()
-        );
-        return similarity >= 0.9 && !a.revealed; // 90% совпадение и ответ не был раскрыт
+        return isSimilar(a.text, answer) && !a.revealed; // Используем isSimilar для сравнения
       });
 
       // Логируем все ответы

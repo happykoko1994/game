@@ -14,6 +14,7 @@ export default function GameRoom() {
   const [answer, setAnswer] = useState("");
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [showWinnerPopup, setShowWinnerPopup] = useState(false);
+  const [showAdminControls, setShowAdminControls] = useState(false); // Стейт для отображения панели управления
   const [winner, setWinner] = useState(null);
 
   useEffect(() => {
@@ -64,6 +65,10 @@ export default function GameRoom() {
   const handleClosePopup = () => {
     setShowWinnerPopup(false);
     setWinner(null);
+  };
+
+  const handleToggleAdminControls = () => {
+    setShowAdminControls(!showAdminControls); // Переключаем видимость панели управления
   };
 
   return (
@@ -119,13 +124,20 @@ export default function GameRoom() {
           Кчау
         </button>
       </div>
-
-      <div style={styles.adminControlsWrapper}>
-        <AdminControls
-          onNextQuestion={handleNextQuestion}
-          onNewGame={handleNewGame}
-        />
-      </div>
+      <button
+          onClick={handleToggleAdminControls}
+          style={styles.toggleAdminButton}
+        >
+          Я босс
+        </button>
+        {showAdminControls && (
+        <div style={styles.adminControlsWrapper}>
+          <AdminControls
+            onNextQuestion={handleNextQuestion}
+            onNewGame={handleNewGame}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -198,5 +210,16 @@ const styles = {
   },
   adminControlsWrapper: {
 
+  },
+  toggleAdminButton: {
+    position: "absolute",
+    top: "20px",
+    right: "20px",
+    backgroundColor: "#4CAF50",
+    color: "#fff",
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
   },
 };
