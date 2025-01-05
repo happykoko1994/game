@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import styles from '../style/Logs.module.css';
 
 export default function Logs({ logs }) {
     const logsEndRef = useRef(null);
@@ -11,10 +12,10 @@ export default function Logs({ logs }) {
     }, [logs]); // Зависимость от изменения логов
 
     return (
-        <div style={styles.logsContainer}>
-            <ul style={styles.logsList}>
+        <div className={styles.logsContainer}>
+            <ul className={styles.logsList}>
                 {logs.map((log, index) => (
-                    <li key={index} style={styles.logItem}>
+                    <li key={index} className={styles.logItem}>
                         <span dangerouslySetInnerHTML={{ __html: log }} />
                     </li>
                 ))}
@@ -23,23 +24,3 @@ export default function Logs({ logs }) {
         </div>
     );
 }
-
-const styles = {
-    logsContainer: {
-        padding: '15px',
-        backgroundColor: '#f9f9f9',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        height: '100%',
-        overflowY: 'auto',
-    },
-    logsList: {
-        listStyleType: 'none',
-        padding: 0,
-    },
-    logItem: {
-        padding: '10px',
-        borderBottom: '1px solid #ddd',
-        fontSize: '16px',
-    }
-};
