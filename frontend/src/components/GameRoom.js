@@ -34,6 +34,7 @@ export default function GameRoom() {
       setAnswers(
         possibleAnswers.map((answer) => ({ ...answer, revealed: false }))
       );
+      setLogs([]);
     });
 
     socket.on("revealAnswer", (updatedAnswers) => setAnswers(updatedAnswers));
