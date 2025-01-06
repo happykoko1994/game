@@ -5,7 +5,7 @@ import Logs from "./Logs";
 import QuestionBlock from "./QuestionBlock";
 import AdminControls from "./AdminControls";
 import WinnerPopup from "./WinnerPopup";
-import styles from '../style/GameRoom.module.css';
+import styles from "../style/GameRoom.module.css";
 
 export default function GameRoom() {
   const [players, setPlayers] = useState([]);
@@ -53,6 +53,16 @@ export default function GameRoom() {
       setAnswer("");
     }
   };
+  const handleExit = () => {
+    if (
+      window.confirm(
+        "Вы уверены, что хотите выйти и зайти нормально? Ваши баллы будут обнулены."
+      )
+    ) {
+      localStorage.removeItem("playerName");
+      window.location.reload(); // Перезагружает страницу, перенаправляя на экран создания имени
+    }
+  };
 
   const handleNextQuestion = () => {
     socket.emit("nextQuestion");
@@ -97,9 +107,7 @@ export default function GameRoom() {
         <input
           type="text"
           placeholder={
-            currentPlayer?.answered
-              ? "Вы уже ответили!"
-              : "Введите ваш ответ"
+            currentPlayer?.answered ? "Вы уже ответили!" : "Введите ваш ответ"
           }
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
@@ -126,13 +134,18 @@ export default function GameRoom() {
           Кчау
         </button>
       </div>
-      <button
+      <div className={styles.buttonContainer}>
+        <button
           onClick={handleToggleAdminControls}
           className={styles.toggleAdminButton}
         >
           Я босс
         </button>
-        {showAdminControls && (
+        <button onClick={handleExit} className={styles.exitButton}>
+          Перезайти
+        </button>
+      </div>
+      {showAdminControls && (
         <div className={styles.adminControlsWrapper}>
           <AdminControls
             onNextQuestion={handleNextQuestion}

@@ -26,7 +26,7 @@ app.use(
 );
 
 const questions = require("./questions");
-const isSimilar = require("./utils/levenshtein"); // Импортируем функцию isSimilar
+const isSimilar = require("./utils/levenshtein");
 
 let players = [];
 let adminId = null;
@@ -44,11 +44,14 @@ io.on("connection", (socket) => {
     if (!adminId) adminId = socket.id;
     io.to(adminId).emit("admin", true);
 
+    // Отправляем текущий вопрос с учётом открытых ответов
     if (currentQuestionIndex < questions.length) {
-      io.emit("question", {
-        newQuestion: questions[currentQuestionIndex].text,
-        possibleAnswers: questions[currentQuestionIndex].answers,
+      const currentQuestion = questions[currentQuestionIndex];
+      socket.emit("question", {
+        newQuestion: currentQuestion.text,
+        possibleAnswers: currentQuestion.answers,
       });
+      socket.emit("revealAnswer", currentQuestion.answers);
     }
   });
 
@@ -57,25 +60,26 @@ io.on("connection", (socket) => {
     const player = players.find((p) => p.id === socket.id);
     if (player && !player.answered) {
       const question = questions[currentQuestionIndex];
-      const matchedAnswer = question.answers.find((a) => {
-        return isSimilar(a.text, answer) && !a.revealed; // Используем isSimilar для сравнения
-      });
+      const matchedAnswer = question.answers.find(
+        (a) => isSimilar(a.text, answer) && !a.revealed
+      );
 
       // Логируем все ответы
       io.emit("log", `${player.name} : ${answer}`);
 
-      // Если ответ правильный, обновляем счет и логируем с выделением
+      // Если ответ правильный, обновляем счет
       if (matchedAnswer) {
         player.answered = true;
         player.score += matchedAnswer.points;
         matchedAnswer.revealed = true;
 
-        // Логируем правильный ответ с выделением жирным шрифтом
+        // Логируем правильный ответ
         io.emit(
           "log",
-          `${player.name} : за <strong>${matchedAnswer.text} получает (${matchedAnswer.points} баллов!)</strong>`
+          `${player.name} : за <strong>${matchedAnswer.text}</strong> получает (${matchedAnswer.points} баллов!)`
         );
 
+        // Обновляем состояние ответов и игроков
         io.emit("revealAnswer", question.answers);
         io.emit("updatePlayers", players);
       }
@@ -87,10 +91,10 @@ io.on("connection", (socket) => {
     if (currentQuestionIndex + 1 < questions.length) {
       currentQuestionIndex++;
       const nextQuestion = questions[currentQuestionIndex];
+
+      // Сбрасываем состояние игроков и ответов
       players.forEach((p) => (p.answered = false));
-      questions[currentQuestionIndex].answers.forEach((answer) => {
-        answer.revealed = false;
-      });
+      nextQuestion.answers.forEach((a) => (a.revealed = false));
 
       io.emit("question", {
         newQuestion: nextQuestion.text,
@@ -110,13 +114,12 @@ io.on("connection", (socket) => {
   // Начало новой игры
   socket.on("newGame", () => {
     currentQuestionIndex = 0;
-    questions.forEach((q) => {
-      q.answers.forEach((a) => (a.revealed = false));
-    });
 
-    players.forEach((player) => {
-      player.answered = false;
-      player.score = 0;
+    // Сбрасываем состояние вопросов и игроков
+    questions.forEach((q) => q.answers.forEach((a) => (a.revealed = false)));
+    players.forEach((p) => {
+      p.answered = false;
+      p.score = 0;
     });
 
     io.emit("updatePlayers", players);
@@ -134,11 +137,13 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     players = players.filter((p) => p.id !== socket.id);
 
+    // Передача прав администратора следующему игроку
     if (socket.id === adminId && players.length > 0) {
       adminId = players[0].id;
       io.to(adminId).emit("admin", true);
     }
 
+    // Сброс состояния, если лобби пустое
     if (players.length === 0) {
       currentQuestionIndex = 0;
       io.emit("log", "Lobby is empty. Data reset.");
