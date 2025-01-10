@@ -104,36 +104,34 @@ export default function GameRoom() {
       </div>
 
       <div className={styles.answerSection}>
-        <input
-          type="text"
-          placeholder={
-            currentPlayer?.answered ? "Вы уже ответили!" : "Введите ваш ответ"
-          }
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !currentPlayer?.answered)
-              handleAnswerSubmit();
-          }}
-          className={styles.input}
-          style={{
-            backgroundColor: currentPlayer?.answered ? "#e0e0e0" : "#f9f9f9",
-            cursor: currentPlayer?.answered ? "not-allowed" : "text",
-          }}
-          disabled={currentPlayer?.answered}
-        />
-        <button
-          onClick={handleAnswerSubmit}
-          className={styles.submitButton}
-          style={{
-            backgroundColor: currentPlayer?.answered ? "#ccc" : "#4CAF50",
-            cursor: currentPlayer?.answered ? "not-allowed" : "pointer",
-          }}
-          disabled={currentPlayer?.answered}
-        >
-          Кчау
-        </button>
-      </div>
+  <input
+    type="text"
+    placeholder={currentPlayer?.answered ? "Вы уже ответили!" : "Введите ваш ответ"}
+    value={answer}
+    onChange={(e) => setAnswer(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter" && !currentPlayer?.answered) handleAnswerSubmit();
+    }}
+    className={styles.input}
+    style={{
+      backgroundColor: currentPlayer?.answered ? "#e0e0e0" : "#f9f9f9",
+      cursor: currentPlayer?.answered ? "not-allowed" : "text",
+    }}
+    disabled={currentPlayer?.answered}
+  />
+  <button
+    onClick={handleAnswerSubmit}
+    className={styles.submitButton}
+    style={{
+      backgroundColor: currentPlayer?.answered ? "#ccc" : "#4CAF50",
+      cursor: currentPlayer?.answered ? "not-allowed" : "pointer",
+    }}
+    disabled={currentPlayer?.answered}
+  >
+    Кчау
+  </button>
+</div>
+
       <div className={styles.buttonContainer}>
         <button
           onClick={handleToggleAdminControls}
