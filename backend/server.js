@@ -32,12 +32,19 @@ let players = [];
 let adminId = null;
 let currentQuestionIndex = 0;
 
+// Массив эмодзи
+const emojis = ["😀", "😂", "😍", "😎", "😜", "🤔", "🤩", "🧐", "😇"];
+
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
 
   // Игрок присоединяется
   socket.on("join", (name) => {
-    players.push({ id: socket.id, name, answered: false, score: 0 });
+    // Выбираем случайный эмодзи
+    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+
+    // Добавляем эмодзи перед ником
+    players.push({ id: socket.id, name: randomEmoji + " " + name, answered: false, score: 0 });
     io.emit("updatePlayers", players);
 
     // Назначение администратора

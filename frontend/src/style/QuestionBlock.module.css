@@ -1,49 +1,57 @@
 .questionBlock {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .questionText {
-    font-size: 28px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
+  font-size: 36px;
+  font-family: "Courier New", monospace;
+  text-align: center;
+  letter-spacing: 1.5px;
+  color: #000000;
+  font-weight: bold;
+  text-shadow: 12px 12px 30px rgba(0, 0, 0, 0.8); /* Очень грубая, глубокая тень */
 }
 
 .answersContainer {
-    display: flex;
-    flex-direction: column; /* Вертикальное расположение */
-    gap: 10px;
+  display: flex;
+  flex-direction: column; /* Вертикальное расположение */
+  gap: 10px;
 }
 
 .answerContainer {
-    padding: 15px;
-    background-color: #f2f2f2;
-    border-radius: 8px;
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
+  padding: 15px;
+  background-color: #f2f2f2;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 20px;
+  font-family: "Courier New", monospace;
+  text-align: center;
+  letter-spacing: 1.2px;
+  color: #3a3a3a;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
 }
 
 /* Новая анимация с эффектом "прыжка" и масштабирования */
 .answerContainer.revealed {
-    animation: bounceIn 0.8s ease-out;
+  color: green;
+  animation: bounceIn 0.8s ease-out;
 }
 
 @keyframes bounceIn {
-    0% {
-        opacity: 0;
-        transform: scale(0.5) translateY(-50px);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.1) translateY(20px);
-    }
-    70% {
-        transform: scale(0.9) translateY(-10px);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(-50px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1) translateY(20px);
+  }
+  70% {
+    transform: scale(0.9) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }

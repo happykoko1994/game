@@ -15,6 +15,9 @@
 
 .playerItem {
     padding: 10px;
-    border-bottom: 1px solid #ddd;
     font-size: 16px;
+    font-family: "Courier New", monospace;
+    text-align: left;
+    letter-spacing: 0px;
+    color: #3a3a3a;
 }
