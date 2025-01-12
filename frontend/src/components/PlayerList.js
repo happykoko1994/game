@@ -11,7 +11,7 @@ export default function PlayerList({ players }) {
                         className={styles.playerItem}
                         style={{ color: player.answered ? 'green' : 'black' }}
                     >
-                        {player.name} - {player.score} баллов
+                        {player.name} - {player.score}
                     </li>
                 ))}
             </ul>
