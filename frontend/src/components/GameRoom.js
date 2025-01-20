@@ -17,25 +17,31 @@ export default function GameRoom() {
   const [showWinnerPopup, setShowWinnerPopup] = useState(false);
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [serverReady, setServerReady] = useState(false); // Отслеживает готовность сервера
 
   useEffect(() => {
-    socket.on("updatePlayers", (updatedPlayers) => {
+    const handleUpdatePlayers = (updatedPlayers) => {
       setPlayers(updatedPlayers);
       const player = updatedPlayers.find((p) => p.id === socket.id);
       setCurrentPlayer(player || null);
-    });
+      setServerReady(true); // Сервер проснулся
+    };
 
-    socket.on("log", (message) =>
-      setLogs((prevLogs) => [...prevLogs, message])
-    );
-
-    socket.on("question", ({ newQuestion, possibleAnswers }) => {
+    const handleQuestion = ({ newQuestion, possibleAnswers }) => {
       setQuestion(newQuestion);
       setAnswers(
         possibleAnswers.map((answer) => ({ ...answer, revealed: false }))
       );
       setLogs([]);
-    });
+      setServerReady(true); // Сервер проснулся
+    };
+
+    socket.on("updatePlayers", handleUpdatePlayers);
+    socket.on("question", handleQuestion);
+
+    socket.on("log", (message) =>
+      setLogs((prevLogs) => [...prevLogs, message])
+    );
 
     socket.on("revealAnswer", (updatedAnswers) => setAnswers(updatedAnswers));
 
@@ -44,7 +50,11 @@ export default function GameRoom() {
       setShowWinnerPopup(true);
     });
 
-    return () => socket.off();
+    return () => {
+      socket.off("updatePlayers", handleUpdatePlayers);
+      socket.off("question", handleQuestion);
+      socket.off();
+    };
   }, []);
 
   const handleAnswerSubmit = () => {
@@ -53,6 +63,7 @@ export default function GameRoom() {
       setAnswer("");
     }
   };
+
   const handleExit = () => {
     if (
       window.confirm(
@@ -60,7 +71,7 @@ export default function GameRoom() {
       )
     ) {
       localStorage.removeItem("playerName");
-      window.location.reload(); // Перезагружает страницу, перенаправляя на экран создания имени
+      window.location.reload();
     }
   };
 
@@ -83,6 +94,14 @@ export default function GameRoom() {
     setShowAdminControls(!showAdminControls);
   };
 
+  if (!serverReady) {
+    return (
+      <div className={styles.loader}>
+        <p>Сервер пробуждается, пожалуйста, подождите... 😴</p>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       {showWinnerPopup && (
@@ -104,33 +123,36 @@ export default function GameRoom() {
       </div>
 
       <div className={styles.answerSection}>
-  <input
-    type="text"
-    placeholder={currentPlayer?.answered ? "Вы уже ответили!" : "Введите ваш ответ"}
-    value={answer}
-    onChange={(e) => setAnswer(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter" && !currentPlayer?.answered) handleAnswerSubmit();
-    }}
-    className={styles.input}
-    style={{
-      backgroundColor: currentPlayer?.answered ? "#e0e0e0" : "#f9f9f9",
-      cursor: currentPlayer?.answered ? "not-allowed" : "text",
-    }}
-    disabled={currentPlayer?.answered}
-  />
-  <button
-    onClick={handleAnswerSubmit}
-    className={styles.submitButton}
-    style={{
-      backgroundColor: currentPlayer?.answered ? "#ccc" : "#4CAF50",
-      cursor: currentPlayer?.answered ? "not-allowed" : "pointer",
-    }}
-    disabled={currentPlayer?.answered}
-  >
-    Кчау
-  </button>
-</div>
+        <input
+          type="text"
+          placeholder={
+            currentPlayer?.answered ? "Вы уже ответили!" : "Введите ваш ответ"
+          }
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !currentPlayer?.answered)
+              handleAnswerSubmit();
+          }}
+          className={styles.input}
+          style={{
+            backgroundColor: currentPlayer?.answered ? "#e0e0e0" : "#f9f9f9",
+            cursor: currentPlayer?.answered ? "not-allowed" : "text",
+          }}
+          disabled={currentPlayer?.answered}
+        />
+        <button
+          onClick={handleAnswerSubmit}
+          className={styles.submitButton}
+          style={{
+            backgroundColor: currentPlayer?.answered ? "#ccc" : "#4CAF50",
+            cursor: currentPlayer?.answered ? "not-allowed" : "pointer",
+          }}
+          disabled={currentPlayer?.answered}
+        >
+          Кчау
+        </button>
+      </div>
 
       <div className={styles.buttonContainer}>
         <button
