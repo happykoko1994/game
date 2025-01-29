@@ -11,10 +11,11 @@ export default function QuestionBlock({ question, answers }) {
                         key={index}
                         className={`${styles.answerContainer} ${answer.revealed ? styles.revealed : ''}`}
                     >
-                        {answer.revealed ? `${answer.text} (${answer.points} баллов)` : '???'}
+                        {answer.revealed ? `${answer.text} - ${answer.points}` : `- ${index + 1} -`}
                     </div>
                 ))}
             </div>
         </div>
     );
 }
+

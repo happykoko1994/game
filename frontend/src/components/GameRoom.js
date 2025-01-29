@@ -18,6 +18,7 @@ export default function GameRoom() {
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [winner, setWinner] = useState(null);
   const [serverReady, setServerReady] = useState(false); // Отслеживает готовность сервера
+  const [dots, setDots] = useState(".");
 
   useEffect(() => {
     const handleUpdatePlayers = (updatedPlayers) => {
@@ -60,10 +61,12 @@ export default function GameRoom() {
   useEffect(() => {
     if (currentPlayer) {
       localStorage.setItem("playerScore", JSON.stringify(currentPlayer.score));
-      localStorage.setItem("playerAnswered", JSON.stringify(currentPlayer.answered));
+      localStorage.setItem(
+        "playerAnswered",
+        JSON.stringify(currentPlayer.answered)
+      );
     }
-    console.log(currentPlayer);
-  }, [currentPlayer]);  
+  }, [currentPlayer]);
 
   const handleAnswerSubmit = () => {
     if (answer.trim()) {
@@ -71,6 +74,14 @@ export default function GameRoom() {
       setAnswer("");
     }
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length < 3 ? prev + "." : "."));
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleExit = () => {
     if (
@@ -105,7 +116,9 @@ export default function GameRoom() {
   if (!serverReady) {
     return (
       <div className={styles.loader}>
-        <p>Сервер пробуждается, пожалуйста, подождите... 😴</p>
+        <p className={styles.outlinedText}>
+          Сервер пробуждается, пожалуйста, подождите{dots} 😴
+        </p>
       </div>
     );
   }
