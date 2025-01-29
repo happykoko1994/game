@@ -5,15 +5,18 @@ export default function PlayerList({ players }) {
     return (
         <div className={styles.playersContainer}>
             <ul className={styles.playersList}>
-                {players.map((player, index) => (
-                    <li
-                        key={index}
-                        className={styles.playerItem}
-                        style={{ color: player.answered ? 'green' : 'black' }}
-                    >
-                        {player.name} - {player.score}
-                    </li>
-                ))}
+                {players
+                    .slice()
+                    .sort((a, b) => b.score - a.score)
+                    .map((player, index) => (
+                        <li
+                            key={index}
+                            className={styles.playerItem}
+                            style={{ color: player.answered ? 'green' : 'black' }}
+                        >
+                            {player.name} - {player.score}
+                        </li>
+                    ))}
             </ul>
         </div>
     );
