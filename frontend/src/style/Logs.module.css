@@ -21,4 +21,18 @@
     text-align: left;
     letter-spacing: 0px;
     color: #3a3a3a;
+    transform: translateX(-50px); /* Начальная позиция */
+    animation: slideIn 0.3s forwards; /* Анимация */
+}
+
+/* Ключевые кадры для анимации */
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-30px); /* Начальная позиция слева */
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0); /* Конечная позиция (средина) */
+    }
 }
