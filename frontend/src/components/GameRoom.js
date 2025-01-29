@@ -182,7 +182,7 @@ export default function GameRoom() {
         >
           Я босс
         </button>
-        <button onClick={handleExit} className={styles.exitButton}>
+        <button onClick={handleExit} className={styles.nameButton}>
           Сменить имя
         </button>
       </div>

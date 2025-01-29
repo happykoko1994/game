@@ -121,8 +121,8 @@
   margin-top: 10px; /* Отступ сверху для отделения от других элементов */
 }
 
-.exitButton {
-  background-color: #f44336; /* Красный цвет для кнопки "Выйти" */
+.nameButton {
+  background-color: #0067ed; /* Красный цвет для кнопки "Выйти" */
   color: white;
   border: none;
   padding: 10px 20px;

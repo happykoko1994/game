@@ -5,7 +5,15 @@
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     height: 100%;
-    overflow-y: auto;
+    overflow-y: scroll;
+}
+
+.logsContainer::-webkit-scrollbar {
+    width: 6px; /* Ширина скроллбара */
+}
+
+.logsContainer::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.0); /* Цвет бегунка */
 }
 
 .logsList {
