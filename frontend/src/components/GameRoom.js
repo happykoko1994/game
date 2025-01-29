@@ -57,6 +57,14 @@ export default function GameRoom() {
     };
   }, []);
 
+  useEffect(() => {
+    if (currentPlayer) {
+      localStorage.setItem("playerScore", JSON.stringify(currentPlayer.score));
+      localStorage.setItem("playerAnswered", JSON.stringify(currentPlayer.answered));
+    }
+    console.log(currentPlayer);
+  }, [currentPlayer]);  
+
   const handleAnswerSubmit = () => {
     if (answer.trim()) {
       socket.emit("submitAnswer", answer);
@@ -67,7 +75,7 @@ export default function GameRoom() {
   const handleExit = () => {
     if (
       window.confirm(
-        "Вы уверены, что хотите выйти и зайти нормально? Ваши баллы будут обнулены."
+        "Вы уверены, что хотите выйти и зайти нормально? Ваши баллы сохранятся."
       )
     ) {
       localStorage.removeItem("playerName");
@@ -162,7 +170,7 @@ export default function GameRoom() {
           Я босс
         </button>
         <button onClick={handleExit} className={styles.exitButton}>
-          Перезайти
+          Сменить имя
         </button>
       </div>
       {showAdminControls && (

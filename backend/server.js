@@ -29,8 +29,15 @@ const questions = require("./questions");
 const isSimilar = require("./utils/levenshtein");
 
 let players = [];
-let adminId = null;
 let currentQuestionIndex = 0;
+
+const updateScores = () => {
+  const scores = players.reduce((acc, player) => {
+    acc[player.id] = player.score;
+    return acc;
+  }, {});
+  io.emit("updateScores", scores);
+};
 
 // Массив эмодзи
 const emojis = ["😀", "😂", "😍", "😎", "😜", "🤔", "🤩", "🧐", "😇"];
@@ -39,17 +46,13 @@ io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
 
   // Игрок присоединяется
-  socket.on("join", (name) => {
+  socket.on("join", (name, score = 0, answered = false) => {
     // Выбираем случайный эмодзи
     const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
 
     // Добавляем эмодзи перед ником
-    players.push({ id: socket.id, name: randomEmoji + " " + name, answered: false, score: 0 });
+    players.push({ id: socket.id, name: randomEmoji + " " + name, answered, score });
     io.emit("updatePlayers", players);
-
-    // Назначение администратора
-    if (!adminId) adminId = socket.id;
-    io.to(adminId).emit("admin", true);
 
     // Отправляем текущий вопрос с учётом открытых ответов
     if (currentQuestionIndex < questions.length) {
@@ -89,6 +92,8 @@ io.on("connection", (socket) => {
         // Обновляем состояние ответов и игроков
         io.emit("revealAnswer", question.answers);
         io.emit("updatePlayers", players);
+
+        updateScores();
       }
     }
   });
@@ -143,12 +148,6 @@ io.on("connection", (socket) => {
   // Отключение игрока
   socket.on("disconnect", () => {
     players = players.filter((p) => p.id !== socket.id);
-
-    // Передача прав администратора следующему игроку
-    if (socket.id === adminId && players.length > 0) {
-      adminId = players[0].id;
-      io.to(adminId).emit("admin", true);
-    }
 
     // Сброс состояния, если лобби пустое
     if (players.length === 0) {

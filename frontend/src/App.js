@@ -6,10 +6,12 @@ import DayNightCycle from "./components/DayNightCycle";
 
 export default function App() {
   const [name, setName] = useState(localStorage.getItem("playerName"));
+  const [score] = useState(JSON.parse(localStorage.getItem("playerScore")) || 0);
+  const [answered] = useState(JSON.parse(localStorage.getItem("playerAnswered")) || false);
 
   useEffect(() => {
     if (name) {
-      socket.emit("join", name);
+      socket.emit("join", name, score, answered);
     }
   }, [name]);
 
@@ -28,3 +30,4 @@ export default function App() {
     </DayNightCycle>
   );
 }
+
