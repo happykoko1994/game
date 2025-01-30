@@ -12,9 +12,6 @@ export default function AdminControls({
   const [answers, setAnswers] = useState([]);
   const [questions, setQuestions] = useState([]);
 
-  const questionPopupRef = useRef(null);
-  const answersPopupRef = useRef(null);
-
   useEffect(() => {
     // Слушаем событие для получения ответов на текущий вопрос
     socket.on("sendAnswers", (answersData) => {
@@ -36,31 +33,6 @@ export default function AdminControls({
     };
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Проверяем, был ли клик вне всплывашки
-      if (
-        questionPopupRef.current &&
-        !questionPopupRef.current.contains(event.target)
-      ) {
-        setShowQuestionPopup(false);
-      }
-      if (
-        answersPopupRef.current &&
-        !answersPopupRef.current.contains(event.target)
-      ) {
-        setShowAnswers(false);
-      }
-    };
-
-    // Добавляем обработчик события
-    document.addEventListener("mousedown", handleClickOutside);
-
-    // Убираем обработчик при размонтировании компонента
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleShowAnswers = () => {
     setShowAnswers((prev) => !prev);
@@ -101,17 +73,16 @@ export default function AdminControls({
           onClick={handleToggleQuestionPopup}
           className={`${styles.button} ${styles.listButton}`}
         >
+          <span className={styles.text}>Перейти к вопросу</span>
           <img
             className={styles.icon}
             src="/list.svg"
             alt="Перейти к вопросу"
           />
-          <span className={styles.text}>Перейти к вопросу</span>
         </button>
 
         {showQuestionPopup && (
           <div
-            ref={questionPopupRef}
             className={`${styles.questionPopup} ${styles.popup}`}
           >
             <ul>
@@ -128,37 +99,37 @@ export default function AdminControls({
         )}
       </div>
       <button onClick={handleNextQuestion} className={styles.button}>
-        <img className={styles.icon} src="/next.svg" alt="Следующий вопрос" />
         <span className={styles.text}>Следующий вопрос</span>
+        <img className={styles.icon} src="/next.svg" alt="Следующий вопрос" />
       </button>
       <button
         onClick={handlePrevQuestion}
         className={`${styles.button} ${styles.prevButton}`}
       >
-        <img className={styles.icon} src="/prev.svg" alt="Предыдущий вопрос" />
         <span className={styles.text}>Предыдущий вопрос</span>
+        <img className={styles.icon} src="/prev.svg" alt="Предыдущий вопрос" />
       </button>
       <button
         onClick={handleNewGame}
         className={`${styles.button} ${styles.newGameButton}`}
       >
-        <img className={styles.icon} src="/name.svg" alt="Перейти к вопросу" />
         <span className={styles.text}>Новая игра</span>
+        <img className={styles.icon} src="/name.svg" alt="Перейти к вопросу" />
       </button>
       <div className={styles.container}>
         <button onClick={handleShowAnswers} className={styles.button}>
+          <span className={styles.text}>
+            {showAnswers ? "Скрыть ответы" : "Показать ответы"}
+          </span>
           <img
             className={styles.icon}
             src="/answer.svg"
             alt="Показать ответы"
           />
-          <span className={styles.text}>
-            {showAnswers ? "Скрыть ответы" : "Показать ответы"}
-          </span>
         </button>
 
         {showAnswers && (
-          <div ref={answersPopupRef} className={styles.popup}>
+          <div className={styles.popup}>
             <ul>
               {answers.map((answer, index) => (
                 <li key={index}>

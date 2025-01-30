@@ -1,12 +1,12 @@
 .controlsContainer {
   position: fixed;
-  left: 20px;
+  right: 20px;
   bottom: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: end;
   gap: 10px;
-  margin-top: 20px;
 }
 
 .button {
@@ -42,15 +42,12 @@
 .button:hover .text {
   opacity: 1;
   width: auto;
-  margin-left: 10px;
+  margin-right: 10px;
 }
 
 .icon {
   width: 32px;
   height: 32px;
-}
-.button:hover .icon {
-  margin-right: 10px;
 }
 
 .container {
@@ -74,8 +71,8 @@
 .popup {
   position: absolute;
   bottom: 100%;
-  right: -10px;
-  transform: translateX(100%);
+  left: -10px;
+  transform: translateX(-100%);
   background: white;
   border: 1px solid #ccc;
   border-radius: 8px;
