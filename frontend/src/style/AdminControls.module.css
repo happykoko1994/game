@@ -43,3 +43,14 @@
   z-index: 1000;
   width: 300px;
 }
+.popup.questionPopup {
+  overflow-y: auto;
+  max-height: 300px;
+}
+.popup.questionPopup li{
+  padding: 5px 0;
+  border-bottom: 1px solid gray;
+}
+.popup.questionPopup ul{
+  list-style-type: decimal;
+}

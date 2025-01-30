@@ -147,6 +147,29 @@ io.on("connection", (socket) => {
       io.emit("endGame", { winner: winner?.name || "No winner" });
     }
   });
+  socket.on("getQuestions", () => {
+    io.emit("questionsList", questions.map((q, index) => ({
+      id: index,
+      text: q.text
+    })));
+  });
+  // Слушаем событие перехода к выбранному вопросу
+socket.on("goToQuestion", (questionId) => {
+  if (questionId >= 0 && questionId < questions.length) {
+    currentQuestionIndex = questionId;
+    const selectedQuestion = questions[questionId];
+    
+    // Сбрасываем состояние игроков и ответов
+    players.forEach((p) => (p.answered = false));
+    selectedQuestion.answers.forEach((a) => (a.revealed = false));
+
+    io.emit("question", {
+      newQuestion: selectedQuestion.text,
+      possibleAnswers: selectedQuestion.answers,
+    });
+    io.emit("updatePlayers", players);
+  }
+});
 
   // Начало новой игры
   socket.on("newGame", () => {
