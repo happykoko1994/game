@@ -114,6 +114,14 @@ io.on("connection", (socket) => {
       }
     }
   });
+  socket.on("logAnswers", () => {
+    if (currentQuestionIndex < questions.length) {
+      const currentQuestion = questions[currentQuestionIndex];
+      
+      // Отправляем список ответов на текущий вопрос
+      io.emit("sendAnswers", currentQuestion.answers);
+    }
+  });
 
   // Переход к следующему вопросу
   socket.on("nextQuestion", () => {
