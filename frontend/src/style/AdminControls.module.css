@@ -48,8 +48,13 @@
   max-height: 300px;
 }
 .popup.questionPopup li{
+  cursor: pointer;
   padding: 5px 0;
   border-bottom: 1px solid gray;
+}
+.popup.questionPopup li:hover{
+  transition: all 0.3s ease;
+  color: rgb(58, 58, 255);
 }
 .popup.questionPopup ul{
   list-style-type: decimal;
