@@ -1,12 +1,20 @@
 .controlsContainer {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   gap: 10px;
   margin-top: 20px;
 }
 
 .button {
-  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70px;
+  height: 70px;
   background-color: #4caf50;
   color: #fff;
   border: none;
@@ -14,10 +22,35 @@
   cursor: pointer;
   font-size: 16px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.3s ease-in-out;
+  position: relative;
+}
+.button .text {
+  width: 0;
+  overflow: hidden;
 }
 
 .button:hover {
-  background-color: #45a049;
+  width: 280px;
+  max-width: fit-content;
+  justify-content: flex-start;
+  padding: 0 20px;
+}
+
+.button:hover .text {
+  opacity: 1;
+  width: auto;
+  margin-left: 10px;
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+}
+.button:hover .icon {
+  margin-right: 10px;
 }
 
 .container {
@@ -27,10 +60,17 @@
 
 .button {
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: 18px;
   cursor: pointer;
 }
-
+.button.newGameButton{
+  background-color: orange;
+}
+.button.listButton{
+  background-color: #0067ed;}
+  .button.prevButton{
+    background-color: #f85822;}
+  
 .popup {
   position: absolute;
   bottom: 100%;

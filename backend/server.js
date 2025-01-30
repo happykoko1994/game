@@ -147,6 +147,27 @@ io.on("connection", (socket) => {
       io.emit("endGame", { winner: winner?.name || "No winner" });
     }
   });
+  // Переход к предыдущему вопросу (или к последнему, если на первом)
+socket.on("prevQuestion", () => {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+  } else {
+    currentQuestionIndex = questions.length - 1; // Переход к последнему вопросу
+  }
+
+  const prevQuestion = questions[currentQuestionIndex];
+
+  // Сбрасываем состояние игроков и ответов
+  players.forEach((p) => (p.answered = false));
+  prevQuestion.answers.forEach((a) => (a.revealed = false));
+
+  io.emit("question", {
+    newQuestion: prevQuestion.text,
+    possibleAnswers: prevQuestion.answers,
+  });
+  io.emit("updatePlayers", players);
+});
+
   socket.on("getQuestions", () => {
     io.emit("questionsList", questions.map((q, index) => ({
       id: index,

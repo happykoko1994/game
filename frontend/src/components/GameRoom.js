@@ -97,6 +97,9 @@ export default function GameRoom() {
   const handleNextQuestion = () => {
     socket.emit("nextQuestion");
   };
+  const handlePrevQuestion = () => {
+    socket.emit("prevQuestion");
+  };
 
   const handleNewGame = () => {
     socket.emit("newGame");
@@ -171,7 +174,13 @@ export default function GameRoom() {
           }}
           disabled={currentPlayer?.answered}
         >
-          Кчау
+          <img
+            className={styles.arrow}
+            src="/arrow.svg"
+            alt="Отправить"
+            width={24}
+            height={24}
+          />
         </button>
       </div>
 
@@ -180,9 +189,15 @@ export default function GameRoom() {
           onClick={handleToggleAdminControls}
           className={styles.toggleAdminButton}
         >
-          Я босс
+          <img
+            src="/list.svg"
+            alt="Панель управления"
+            className={styles.icon}
+          />
+          Панель управления
         </button>
         <button onClick={handleExit} className={styles.nameButton}>
+          <img className={styles.icon} src="/name.svg" alt="Сменить имя" />
           Сменить имя
         </button>
       </div>
@@ -190,6 +205,7 @@ export default function GameRoom() {
         <div className={styles.adminControlsWrapper}>
           <AdminControls
             onNextQuestion={handleNextQuestion}
+            onPrevQuestion={handlePrevQuestion}
             onNewGame={handleNewGame}
           />
         </div>

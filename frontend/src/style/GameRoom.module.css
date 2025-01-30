@@ -69,7 +69,7 @@
 }
 
 .input:focus {
-  border-color: #4CAF50;
+  border-color: #4caf50;
   background-color: #fff; /* Меняем фон при фокусе */
   box-shadow: 0 0 5px rgba(0, 200, 80, 0.4); /* Добавляем тень */
 }
@@ -79,7 +79,7 @@
   color: #fff;
   border: 1px solid #ccc;
   border-radius: 0 8px 8px 0; /* Скругление углов */
-  background-color: #4CAF50;
+  background-color: #4caf50;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s ease; /* Плавное изменение */
@@ -88,7 +88,6 @@
 .submitButton:disabled {
   background-color: #ccc;
   cursor: not-allowed;
-
 }
 
 .submitButton:not(:disabled):hover {
@@ -100,7 +99,15 @@
   background-color: #388e3c; /* Эффект при нажатии */
   transform: scale(0.98); /* Легкое уменьшение при нажатии */
 }
-
+.arrow {
+  margin-top: 5px;
+}
+.icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
 
 .toggleAdminButton {
   background-color: #4caf50;
@@ -112,27 +119,23 @@
 }
 
 .buttonContainer {
-    position: absolute;
-    top: 10px;
-    right: 20px;
+  position: absolute;
+  top: 10px;
+  right: 20px;
   display: flex;
   justify-content: flex-end;
-  gap: 10px; /* Расстояние между кнопками */
-  margin-top: 10px; /* Отступ сверху для отделения от других элементов */
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .nameButton {
-  background-color: #0067ed; /* Красный цвет для кнопки "Выйти" */
+  background-color: #0067ed;
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
-}
-
-.exitButton:hover {
-  background-color: #d32f2f; /* Более темный красный при наведении */
 }
 
 .loader {
