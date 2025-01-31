@@ -39,9 +39,6 @@ const updateScores = () => {
   io.emit("updateScores", scores);
 };
 
-let timer = null;
-let timeRemaining = 15 * 60;
-
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
 
@@ -51,20 +48,6 @@ io.on("connection", (socket) => {
     // Добавляем эмодзи перед ником
     players.push({ id: socket.id, name: name, answered, score });
     io.emit("updatePlayers", players);
-
-    if (players.length > 0 && !timer) {
-      timer = setInterval(() => {
-        if (timeRemaining > 0) {
-          timeRemaining -= 60; // Уменьшаем на 1 минуту
-          io.emit("log", `SERVER : <b>Осталось ${Math.floor(timeRemaining / 60)} мин</b>`);
-        } else {
-          clearInterval(timer);
-          timer = null;
-          io.emit("log", "SERVER : Время вышло!");
-          // Можно завершить игру или выполнить другие действия
-        }
-      }, 60000); // Обновления раз в минуту
-    }
 
     // Отправляем текущий вопрос с учётом открытых ответов
     if (currentQuestionIndex < questions.length) {
