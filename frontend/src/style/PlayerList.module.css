@@ -1,6 +1,7 @@
 /* style/PlayerList.module.css */
 .playersContainer {
-    padding: 15px;
+
+    padding: 10px;
     background-color: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -9,15 +10,71 @@
 }
 
 .playersList {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
     list-style-type: none;
-    padding: 0;
+    padding-inline-start: 0;
+    width: 100%;
+    gap: 10px;
 }
 
 .playerItem {
-    padding: 10px;
+    position: relative;
+    display: flex;
+    width: 100%;
     font-size: 16px;
-    font-family: "Courier New", monospace;
-    text-align: left;
-    letter-spacing: 0px;
-    color: #3a3a3a;
+    font-family: "Russo One", sans-serif;
+}
+
+.playerDetails {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border: 2px solid rgb(99, 99, 99);
+    padding: 8px 10px;
+    border-radius: 10px;
+    max-width: 300px;
+    white-space: nowrap;
+    
+}
+.playerItem:after{
+    content: "";
+    position: absolute;
+    height: 100%;
+    width: 2px;
+    background-color: rgb(99, 99, 99);
+    right: 50px;
+    top: 0;
+}
+
+.medal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+}
+
+.medalImage {
+    width: 10px;
+    height: 10px;
+    object-fit: cover;
+}
+
+.playerName {
+    flex-grow: 1;
+    margin-left: 5px;
+    overflow: hidden;
+    margin-right: 20px;
+}
+
+.playerScore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: right;
+    margin-left: 10px;
 }

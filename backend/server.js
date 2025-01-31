@@ -39,9 +39,6 @@ const updateScores = () => {
   io.emit("updateScores", scores);
 };
 
-// Массив эмодзи
-const emojis = ['⚔️', '🎮', '👾', '🎲', '🕹️', '🏆', '🥇', '🎯', '💥', '🔥', '💣', '💀', '👑', '👒', '🤖', '👻', '💎', '🏅', '🛡️', '🚀', '⚡', '🌟', '😀', '😁', '😂', '🤣', '😃', '😄', '😅', '😆', '😉', '😊', '😋', '😎'];
-
 let timer = null;
 let timeRemaining = 15 * 60;
 
@@ -50,11 +47,9 @@ io.on("connection", (socket) => {
 
   // Игрок присоединяется
   socket.on("join", (name, score = 0, answered = false) => {
-    // Выбираем случайный эмодзи
-    const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
 
     // Добавляем эмодзи перед ником
-    players.push({ id: socket.id, name: randomEmoji + " " + name, answered, score });
+    players.push({ id: socket.id, name: name, answered, score });
     io.emit("updatePlayers", players);
 
     if (players.length > 0 && !timer) {
