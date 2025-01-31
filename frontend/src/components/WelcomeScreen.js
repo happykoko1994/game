@@ -23,6 +23,7 @@ export default function WelcomeScreen({ setName }) {
       if (e.key === "Enter") handleJoin();
     }}
     className={styles.input}
+    maxLength={15}
   />
   <button
     onClick={handleJoin}
