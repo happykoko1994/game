@@ -168,10 +168,6 @@ export default function GameRoom() {
         <button
           onClick={handleAnswerSubmit}
           className={styles.submitButton}
-          style={{
-            backgroundColor: currentPlayer?.answered ? "#ccc" : "#4CAF50",
-            cursor: currentPlayer?.answered ? "not-allowed" : "pointer",
-          }}
           disabled={currentPlayer?.answered}
         >
           <img
@@ -194,7 +190,7 @@ export default function GameRoom() {
             alt="Панель управления"
             className={styles.icon}
           />
-          Панель управления
+          {showAdminControls ? "Скрыть панель" : "Панель управления"}
         </button>
         <button onClick={handleExit} className={styles.nameButton}>
           <img className={styles.icon} src="/name.svg" alt="Сменить имя" />

@@ -42,10 +42,13 @@
 .button:hover .text {
   opacity: 1;
   width: auto;
-  margin-right: 10px;
+  margin-right: 60px;
 }
 
 .icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   width: 32px;
   height: 32px;
 }

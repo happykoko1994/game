@@ -92,7 +92,6 @@
 
 .submitButton:not(:disabled):hover {
   background-color: #45a049;
-  transform: scale(1.05); /* Увеличение только при наведении */
 }
 
 .submitButton:active {
