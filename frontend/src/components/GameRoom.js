@@ -59,6 +59,25 @@ export default function GameRoom() {
   }, []);
 
   useEffect(() => {
+    socket.on("revealAnswer", (updatedAnswers) => {
+      setAnswers(updatedAnswers);
+  
+      // Проверяем, есть ли среди обновленных ответов тот, который только что был открыт
+      const correctAnswerRevealed = updatedAnswers.some(ans => ans.revealed);
+      if (correctAnswerRevealed) {
+        const audio = new Audio("/sound.mp3");
+        audio.volume = 0.3;
+        audio.play().catch(err => console.error("Ошибка воспроизведения звука:", err));
+      }
+    });
+  
+    return () => {
+      socket.off("revealAnswer");
+    };
+  }, []);
+  
+
+  useEffect(() => {
     if (currentPlayer) {
       localStorage.setItem("playerScore", JSON.stringify(currentPlayer.score));
       localStorage.setItem(
