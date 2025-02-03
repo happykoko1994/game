@@ -25,6 +25,15 @@ const Dice = () => {
       localStorage.setItem("highScore", score);
     }
   };
+  const hasInvalidDice = (selectedValues) => {
+    return selectedValues.some((value) => {
+      const counts = selectedValues.filter(v => v === value).length;
+      return (
+        counts < 3 && value !== 1 && value !== 5 // Если не тройка, не 1 и не 5 — это "мусор"
+      );
+    });
+  };
+  
 
   const rollDice = (numDice) => {
     return Array(numDice)
@@ -123,11 +132,16 @@ const Dice = () => {
   };
 
   const startNewTurn = () => {
-    setDice(rollDice(6));
+    let newDice;
+    do {
+      newDice = rollDice(6);
+    } while (calculateScore(newDice) === 0); // Перебрасываем, пока нет комбинации
+  
+    setDice(newDice);
     setSelectedDice([]);
     setTemporaryScore(0);
     setRemainingDice(6);
-    setBurnedScoreMessage("")
+    setBurnedScoreMessage("");
     setGamePhase("continue");
   };
 
@@ -139,10 +153,10 @@ const Dice = () => {
     const selectedValues = selectedDice.map((index) => dice[index]);
     const roundScore = calculateScore(selectedValues);
   
-    // Проверяем, является ли выбранная комбинация очков
-    if (roundScore === 0) {
-        setBurnedScoreMessage("Неверная комбинация!")
-      return
+    // Проверяем, является ли выбранная комбинация корректной
+    if (roundScore === 0 || hasInvalidDice(selectedValues)) {
+      setBurnedScoreMessage("Неверная комбинация! Есть неподходящие кости.");
+      return;
     }
   
     const remaining = remainingDice - selectedDice.length;
@@ -160,11 +174,12 @@ const Dice = () => {
     }
   
     setDice(newDice);
-    setBurnedScoreMessage("")
+    setBurnedScoreMessage("");
     setRemainingDice(remaining === 0 ? 6 : remaining);
     setTemporaryScore(temporaryScore + roundScore);
     setSelectedDice([]);
-  };  
+  };
+  
 
   const endTurn = () => {
     if (temporaryScore === 0) {
@@ -173,8 +188,15 @@ const Dice = () => {
     }
 
     const selectedValues = selectedDice.map((index) => dice[index]);
+    const roundScore = calculateScore(selectedValues);
+  
+    // Проверяем, является ли выбранная комбинация корректной
+    if (roundScore === 0 || hasInvalidDice(selectedValues)) {
+      setBurnedScoreMessage("Неверная комбинация! Есть неподходящие кости.");
+      return;
+    }
     const newPermanentScore =
-      permanentScore + temporaryScore + calculateScore(selectedValues);
+      permanentScore + temporaryScore + roundScore;
     setPermanentScore(newPermanentScore);
     setTemporaryScore(0);
     setSelectedDice([]);
