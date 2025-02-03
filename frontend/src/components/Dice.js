@@ -132,14 +132,22 @@ const Dice = () => {
   };
 
   const continueGame = () => {
-    if (selectedDice.length === 0) return alert("Вы не отложили кубики!");
-
+    if (selectedDice.length === 0) {
+      return alert("Вы не отложили кубики!");
+    }
+  
     const selectedValues = selectedDice.map((index) => dice[index]);
     const roundScore = calculateScore(selectedValues);
-
+  
+    // Проверяем, является ли выбранная комбинация очков
+    if (roundScore === 0) {
+        setBurnedScoreMessage("Неверная комбинация!")
+      return
+    }
+  
     const remaining = remainingDice - selectedDice.length;
     const newDice = rollDice(remaining === 0 ? 6 : remaining);
-
+  
     if (calculateScore(newDice) === 0) {
       setDice(newDice);
       setTemporaryScore(0);
@@ -150,12 +158,13 @@ const Dice = () => {
       setSelectedDice([]);
       return;
     }
-
+  
     setDice(newDice);
+    setBurnedScoreMessage("")
     setRemainingDice(remaining === 0 ? 6 : remaining);
     setTemporaryScore(temporaryScore + roundScore);
     setSelectedDice([]);
-  };
+  };  
 
   const endTurn = () => {
     if (temporaryScore === 0) {
