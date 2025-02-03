@@ -10,6 +10,7 @@ const Dice = () => {
   const [remainingDice, setRemainingDice] = useState(6);
   const [gamePhase, setGamePhase] = useState("start");
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const [burnedScoreMessage, setBurnedScoreMessage] = useState("");
 
   useEffect(() => {
     const savedHighScore = localStorage.getItem("highScore");
@@ -126,6 +127,7 @@ const Dice = () => {
     setSelectedDice([]);
     setTemporaryScore(0);
     setRemainingDice(6);
+    setBurnedScoreMessage("")
     setGamePhase("continue");
   };
 
@@ -135,8 +137,6 @@ const Dice = () => {
     const selectedValues = selectedDice.map((index) => dice[index]);
     const roundScore = calculateScore(selectedValues);
 
-    if (roundScore === 0) return alert("Выбраны неочковыеп кубики!");
-
     const remaining = remainingDice - selectedDice.length;
     const newDice = rollDice(remaining === 0 ? 6 : remaining);
 
@@ -144,7 +144,7 @@ const Dice = () => {
       setDice(newDice);
       setTemporaryScore(0);
       setPermanentScore(0);
-      alert("Очки сгорели!");
+      setBurnedScoreMessage("Нет комбинаций, очки сгорели!");
       updateHighScore(permanentScore);
       setGamePhase("start");
       setSelectedDice([]);
@@ -229,6 +229,9 @@ const Dice = () => {
         <div className={styles.selectedScore}>
           Выбрано на {selectedDiceScore} очков
         </div>
+      )}
+      {burnedScoreMessage && (
+        <div className={styles.burnedScoreMessage}>{burnedScoreMessage}</div>
       )}
       <div className={styles.tooltipContainer}>
         <span

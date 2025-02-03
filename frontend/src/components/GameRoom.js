@@ -19,7 +19,7 @@ export default function GameRoom() {
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [showDice, setShowDice] = useState(false);
   const [winner, setWinner] = useState(null);
-  const [serverReady, setServerReady] = useState(false); // Отслеживает готовность сервера
+  const [serverReady, setServerReady] = useState(false);
   const [dots, setDots] = useState(".");
 
   useEffect(() => {
