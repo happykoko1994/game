@@ -116,6 +116,11 @@ const Dice = () => {
     );
   };
 
+  const hasScorableCombination = () => {
+    const selectedValues = selectedDice.map((index) => dice[index]);
+    return calculateScore(selectedValues) > 0;
+  };
+
   const startNewTurn = () => {
     setDice(rollDice(6));
     setSelectedDice([]);
@@ -153,14 +158,35 @@ const Dice = () => {
   };
 
   const endTurn = () => {
+    if (temporaryScore === 0) {
+      alert("Вы не можете завершить ход, так как у вас 0 временных очков!");
+      return;
+    }
+
     const selectedValues = selectedDice.map((index) => dice[index]);
-    setPermanentScore(
-      permanentScore + temporaryScore + calculateScore(selectedValues)
-    );
+    const newPermanentScore =
+      permanentScore + temporaryScore + calculateScore(selectedValues);
+    setPermanentScore(newPermanentScore);
     setTemporaryScore(0);
-    updateHighScore(permanentScore);
     setSelectedDice([]);
-    setGamePhase("start");
+    setGamePhase("continue");
+
+    // Обновляем рекорд, если новое значение permanentScore больше текущего рекорда
+    updateHighScore(newPermanentScore);
+
+    const newDice = rollDice(6);
+    setDice(newDice);
+    setRemainingDice(6);
+
+    // Проверяем, есть ли среди новых кубиков комбинация, которая принесет очки
+    if (calculateScore(newDice) === 0) {
+      setGamePhase("start");
+      setDice([]);
+      setSelectedDice([]);
+      setTemporaryScore(0);
+      setPermanentScore(0);
+      return;
+    }
   };
 
   const resetGame = () => {
@@ -171,6 +197,10 @@ const Dice = () => {
     setRemainingDice(6);
     setGamePhase("start");
   };
+
+  // Вычисление очков для выбранных костей
+  const selectedDiceValues = selectedDice.map((index) => dice[index]);
+  const selectedDiceScore = calculateScore(selectedDiceValues);
 
   return (
     <div className={styles.gameContainer}>
@@ -194,6 +224,12 @@ const Dice = () => {
           </div>
         ))}
       </div>
+      {/* Отображаем очки за выбранные кости */}
+      {selectedDice.length > 0 && (
+        <div className={styles.selectedScore}>
+          Выбрано на {selectedDiceScore} очков
+        </div>
+      )}
       <div className={styles.tooltipContainer}>
         <span
           className={styles.tooltipIcon}
@@ -204,6 +240,7 @@ const Dice = () => {
         </span>
         {isTooltipVisible && (
           <div className={styles.tooltip}>
+            Накопите очки, выбирая кости с нужными значениями, например:
             <ul>
               <li>
                 <img src="./dices/diceone.svg" width={20} height={20} /> - 100
@@ -247,15 +284,18 @@ const Dice = () => {
 
       <div className={styles.diceButtonContainer}>
         {gamePhase === "start" && (
-          <button onClick={startNewTurn}>Начать ход</button>
+          <button onClick={startNewTurn}>Бросить кости</button>
         )}
         {gamePhase === "continue" && (
           <>
-            <button onClick={continueGame}>Продолжить игру</button>
-            <button onClick={endTurn}>Завершить ход</button>
+            <button onClick={continueGame} disabled={selectedDice.length === 0}>
+              {selectedDice.length === 0 ? "Выберите кости" : "Продолжить игру"}
+            </button>
+            {temporaryScore > 0 && hasScorableCombination() && (
+              <button onClick={endTurn}>Завершить ход</button>
+            )}
           </>
         )}
-        <button onClick={resetGame}>Сбросить игру</button>
       </div>
     </div>
   );
