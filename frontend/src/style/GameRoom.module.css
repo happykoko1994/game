@@ -44,7 +44,16 @@
   border-radius: 8px;
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-height: 300px;
+  height: fit-content;
+  min-height: 200px;
+}
+.diceContainer{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: Arial, sans-serif;
 }
 
 .answerSection {
@@ -127,7 +136,7 @@
   margin-top: 10px;
 }
 
-.nameButton {
+.nameButton, .diceButton {
   background-color: #0067ed;
   color: white;
   border: none;
@@ -136,7 +145,9 @@
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
+.diceButton{
+  background-color: #ee00a7;
+}
 .loader {
   display: flex;
   justify-content: center;

@@ -5,6 +5,7 @@ import Logs from "./Logs";
 import QuestionBlock from "./QuestionBlock";
 import AdminControls from "./AdminControls";
 import WinnerPopup from "./WinnerPopup";
+import Dice from "./Dice";
 import styles from "../style/GameRoom.module.css";
 
 export default function GameRoom() {
@@ -16,6 +17,7 @@ export default function GameRoom() {
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [showWinnerPopup, setShowWinnerPopup] = useState(false);
   const [showAdminControls, setShowAdminControls] = useState(false);
+  const [showDice, setShowDice] = useState(false);
   const [winner, setWinner] = useState(null);
   const [serverReady, setServerReady] = useState(false); // Отслеживает готовность сервера
   const [dots, setDots] = useState(".");
@@ -61,21 +63,22 @@ export default function GameRoom() {
   useEffect(() => {
     socket.on("revealAnswer", (updatedAnswers) => {
       setAnswers(updatedAnswers);
-  
+
       // Проверяем, есть ли среди обновленных ответов тот, который только что был открыт
-      const correctAnswerRevealed = updatedAnswers.some(ans => ans.revealed);
+      const correctAnswerRevealed = updatedAnswers.some((ans) => ans.revealed);
       if (correctAnswerRevealed) {
         const audio = new Audio("/sound.mp3");
         audio.volume = 0.3;
-        audio.play().catch(err => console.error("Ошибка воспроизведения звука:", err));
+        audio
+          .play()
+          .catch((err) => console.error("Ошибка воспроизведения звука:", err));
       }
     });
-  
+
     return () => {
       socket.off("revealAnswer");
     };
   }, []);
-  
 
   useEffect(() => {
     if (currentPlayer) {
@@ -111,6 +114,10 @@ export default function GameRoom() {
       localStorage.removeItem("playerName");
       window.location.reload();
     }
+  };
+
+  const handleDice = () => {
+    setShowDice((prev) => !prev);
   };
 
   const handleNextQuestion = () => {
@@ -162,6 +169,7 @@ export default function GameRoom() {
 
         <div className={styles.rightColumn}>
           <Logs logs={logs} />
+          <div className={styles.diceContainer}>{showDice && <Dice />}</div>
         </div>
       </div>
 
@@ -214,6 +222,10 @@ export default function GameRoom() {
         <button onClick={handleExit} className={styles.nameButton}>
           <img className={styles.icon} src="/name.svg" alt="Сменить имя" />
           Сменить имя
+        </button>
+        <button onClick={handleDice} className={styles.diceButton}>
+          <img className={styles.icon} src="./dices/dice.svg" alt="Игра в кости" />
+          {showDice ? "Закрыть игру" : "Игра в кости"}
         </button>
       </div>
       {showAdminControls && (
