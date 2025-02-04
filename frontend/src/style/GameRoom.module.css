@@ -160,9 +160,11 @@
 }
 
 .outlinedText {
+  position: relative;
   font-family: "Arial", sans-serif;
   font-size: 32px;
   font-weight: bold;
   color: transparent;
   -webkit-text-stroke: 1px rgb(0, 0, 0);
+  z-index: 10;
 }
