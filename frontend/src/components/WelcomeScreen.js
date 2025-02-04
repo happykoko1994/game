@@ -14,25 +14,21 @@ export default function WelcomeScreen({ setName }) {
     <div className={styles.container}>
       <h1 className={styles.title}>Представься и проходи, тебя уже ждут! 👻</h1>
       <div className={styles.answerSection}>
-  <input
-    type="text"
-    placeholder="Назови себя"
-    value={name}
-    onChange={(e) => setNameInput(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") handleJoin();
-    }}
-    className={styles.input}
-    maxLength={15}
-  />
-  <button
-    onClick={handleJoin}
-    className={styles.submitButton}
-  >
-    Войти
-  </button>
-</div>
-
+        <input
+          type="text"
+          placeholder="Назови себя"
+          value={name}
+          onChange={(e) => setNameInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleJoin();
+          }}
+          className={styles.input}
+          maxLength={15}
+        />
+        <button onClick={handleJoin} className={styles.submitButton}>
+          Войти
+        </button>
+      </div>
     </div>
   );
 }
