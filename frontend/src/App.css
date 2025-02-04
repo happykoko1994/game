@@ -1,0 +1,19 @@
+.tenor-gif-embed {
+    position: fixed !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.tenor-gif-embed > div {
+
+    padding-top: 0 !important;
+    aspect-ratio: auto !important; /* Отключаем */
+}
+
+.tenor-gif-embed iframe {
+    transform: scale(1.3); /* Немного увеличить видео, чтобы закрывало всё */
+}
