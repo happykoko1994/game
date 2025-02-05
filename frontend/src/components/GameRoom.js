@@ -19,46 +19,55 @@ export default function GameRoom() {
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [showDice, setShowDice] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
   const [serverReady, setServerReady] = useState(false);
   const [dots, setDots] = useState(".");
 
   useEffect(() => {
-    const handleUpdatePlayers = (updatedPlayers) => {
-      setPlayers(updatedPlayers);
-      const player = updatedPlayers.find((p) => p.id === socket.id);
-      setCurrentPlayer(player || null);
-      setServerReady(true); // Сервер проснулся
-    };
-
-    const handleQuestion = ({ newQuestion, possibleAnswers }) => {
-      setQuestion(newQuestion);
-      setAnswers(
-        possibleAnswers.map((answer) => ({ ...answer, revealed: false }))
-      );
-      setLogs([]);
-      setServerReady(true); // Сервер проснулся
-    };
-
-    socket.on("updatePlayers", handleUpdatePlayers);
-    socket.on("question", handleQuestion);
-
-    socket.on("log", (message) =>
-      setLogs((prevLogs) => [...prevLogs, message])
-    );
-
-    socket.on("revealAnswer", (updatedAnswers) => setAnswers(updatedAnswers));
-
-    socket.on("endGame", ({ winner }) => {
-      setWinner(winner);
-      setShowWinnerPopup(true);
+    socket.on('connect', () => {
+      console.log('✅ Успешное подключение:', socket.id);
+      setIsConnected(true); // Устанавливаем, что подключение успешно
     });
 
-    return () => {
-      socket.off("updatePlayers", handleUpdatePlayers);
-      socket.off("question", handleQuestion);
-      socket.off();
-    };
-  }, []);
+    // Если подключение уже установлено, начинаем слушать события
+    if (isConnected) {
+      const handleUpdatePlayers = (updatedPlayers) => {
+        setPlayers(updatedPlayers);
+        const player = updatedPlayers.find((p) => p.id === socket.id);
+        setCurrentPlayer(player || null);
+        setServerReady(true); // Сервер проснулся
+      };
+
+      const handleQuestion = ({ newQuestion, possibleAnswers }) => {
+        setQuestion(newQuestion);
+        setAnswers(
+          possibleAnswers.map((answer) => ({ ...answer, revealed: false }))
+        );
+        setLogs([]);
+        setServerReady(true); // Сервер проснулся
+      };
+
+      socket.on('updatePlayers', handleUpdatePlayers);
+      socket.on('question', handleQuestion);
+      socket.on('log', (message) =>
+        setLogs((prevLogs) => [...prevLogs, message])
+      );
+      socket.on('revealAnswer', (updatedAnswers) => setAnswers(updatedAnswers));
+      socket.on('endGame', ({ winner }) => {
+        setWinner(winner);
+        setShowWinnerPopup(true);
+      });
+
+      // Очистка при размонтировании компонента
+      return () => {
+        socket.off('updatePlayers', handleUpdatePlayers);
+        socket.off('question', handleQuestion);
+        socket.off('log');
+        socket.off('revealAnswer');
+        socket.off('endGame');
+      };
+    }
+  }, [isConnected]); // useEffect сработает, когда isConnected изменится
 
   useEffect(() => {
     socket.on("revealAnswer", (updatedAnswers) => {

@@ -8,9 +8,6 @@ export const socket = io('https://game-h3gc.onrender.com' , {
 //     reconnectionAttempts: 5, 
 //     reconnectionDelay: 2000
 // });
-socket.on('connect', () => {
-    console.log('✅ Успешное подключение:', socket.id);
-});
 socket.on('disconnect', (reason) => {
     console.log('⚠️ Отключение:', reason);
     
