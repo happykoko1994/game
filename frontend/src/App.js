@@ -13,12 +13,42 @@ export default function App() {
   const [answered] = useState(
     JSON.parse(localStorage.getItem("playerAnswered")) || false
   );
+  const [isConnected, setIsConnected] = useState(true);
 
   useEffect(() => {
-    if (name) {
+    const handleDisconnect = (reason) => {
+      console.log("⚠️ Отключение:", reason);
+      setIsConnected(false);
+    };
+
+    const handleConnect = () => {
+      console.log("✅ Подключено!");
+      setIsConnected(true);
+    };
+
+    socket.on("disconnect", handleDisconnect);
+    socket.on("connect", handleConnect);
+
+    return () => {
+      socket.off("disconnect", handleDisconnect);
+      socket.off("connect", handleConnect);
+    };
+  }, []);
+
+  // Отправляем "join", как только появится name
+  useEffect(() => {
+    if (name && isConnected) {
+      console.log("📢 Отправляем JOIN:", name);
       socket.emit("join", name, score, answered);
     }
-  }, [name]);
+  }, [name, isConnected]); // Теперь следим за name и статусом соединения
+  
+
+  // useEffect(() => {
+  //   if (name) {
+  //     socket.emit("join", name, score, answered);
+  //   }
+  // }, [name]);
 
   return (
     <div>

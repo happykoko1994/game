@@ -19,18 +19,10 @@ export default function GameRoom() {
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [showDice, setShowDice] = useState(false);
   const [winner, setWinner] = useState(null);
-  const [isConnected, setIsConnected] = useState(true);
   const [serverReady, setServerReady] = useState(false);
   const [dots, setDots] = useState(".");
 
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('✅ Успешное подключение:', socket.id);
-      setIsConnected(true); // Устанавливаем, что подключение успешно
-    });
-
-    // Если подключение уже установлено, начинаем слушать события
-    if (isConnected) {
       const handleUpdatePlayers = (updatedPlayers) => {
         setPlayers(updatedPlayers);
         const player = updatedPlayers.find((p) => p.id === socket.id);
@@ -65,9 +57,8 @@ export default function GameRoom() {
         socket.off('log');
         socket.off('revealAnswer');
         socket.off('endGame');
-      };
     }
-  }, [isConnected]); // useEffect сработает, когда isConnected изменится
+  }, []);
 
   useEffect(() => {
     socket.on("revealAnswer", (updatedAnswers) => {
