@@ -19,17 +19,18 @@ export default function GameRoom() {
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [showDice, setShowDice] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [isConnected, setIsConnected] = useState(true);
   const [serverReady, setServerReady] = useState(false);
   const [dots, setDots] = useState(".");
 
   useEffect(() => {
+
       const handleUpdatePlayers = (updatedPlayers) => {
         setPlayers(updatedPlayers);
         const player = updatedPlayers.find((p) => p.id === socket.id);
         setCurrentPlayer(player || null);
         setServerReady(true); // Сервер проснулся
       };
-
       const handleQuestion = ({ newQuestion, possibleAnswers }) => {
         setQuestion(newQuestion);
         setAnswers(
@@ -57,8 +58,9 @@ export default function GameRoom() {
         socket.off('log');
         socket.off('revealAnswer');
         socket.off('endGame');
-    }
-  }, []);
+      };
+    
+  }, []); // useEffect сработает, когда isConnected изменится
 
   useEffect(() => {
     socket.on("revealAnswer", (updatedAnswers) => {

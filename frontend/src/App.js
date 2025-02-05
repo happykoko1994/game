@@ -7,10 +7,10 @@ import DayNightCycle from "./components/DayNightCycle";
 
 export default function App() {
   const [name, setName] = useState(localStorage.getItem("playerName"));
-  const [score] = useState(
+  const [score, setScore] = useState(
     JSON.parse(localStorage.getItem("playerScore")) || 0
   );
-  const [answered] = useState(
+  const [answered, setAnswered] = useState(
     JSON.parse(localStorage.getItem("playerAnswered")) || false
   );
   const [isConnected, setIsConnected] = useState(true);
@@ -38,11 +38,16 @@ export default function App() {
   // Отправляем "join", как только появится name
   useEffect(() => {
     if (name && isConnected) {
-      console.log("📢 Отправляем JOIN:", name);
-      socket.emit("join", name, score, answered);
+      const savedScore = JSON.parse(localStorage.getItem("playerScore")) || 0;
+      const savedAnswered = JSON.parse(localStorage.getItem("playerAnswered")) || false;
+  
+      console.log("📢 Отправляем JOIN с сохраненными данными:", name, savedScore, savedAnswered);
+      socket.emit("join", name, savedScore, savedAnswered);
+  
+      setScore(savedScore); // Обновляем локальное состояние
+      setAnswered(savedAnswered);
     }
   }, [name, isConnected]); // Теперь следим за name и статусом соединения
-  
 
   // useEffect(() => {
   //   if (name) {
