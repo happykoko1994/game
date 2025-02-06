@@ -100,12 +100,17 @@ export default function GameRoom() {
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDots((prev) => (prev.length < 3 ? prev + "." : "."));
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
+    if (!serverReady) {
+      const interval = setInterval(() => {
+        setDots((prev) => (prev.length < 3 ? prev + "." : "."));
+      }, 500);
+  
+      return () => clearInterval(interval);
+    } else {
+      setDots("."); // Сброс точек при готовности сервера
+    }
+  }, [serverReady]); // Завязываемся на serverReady
+  
 
   const handleExit = () => {
     if (
