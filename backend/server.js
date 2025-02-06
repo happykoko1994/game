@@ -198,7 +198,6 @@ socket.on("goToQuestion", (questionId) => {
 
     // Сброс состояния, если лобби пустое
     if (players.length === 0) {
-      currentQuestionIndex = 0;
       io.emit("log", "Lobby is empty. Data reset.");
     }
 
