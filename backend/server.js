@@ -1,7 +1,8 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-
+const fs = require("fs");
+const path = require("path");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -17,6 +18,7 @@ require("dotenv").config();
 const cors = require("cors");
 
 const PORT = process.env.PORT || 4000;
+const saveFilePath = path.join(__dirname, "gameState.json");
 
 app.use(
   cors({
@@ -31,6 +33,40 @@ const isSimilar = require("./utils/levenshtein");
 let players = [];
 let currentQuestionIndex = 0;
 
+
+// Функция сохранения состояния (только текущий вопрос и открытые ответы)
+const saveGameState = () => {
+  if (currentQuestionIndex < questions.length) {
+    const gameState = {
+      currentQuestionIndex,
+      revealedAnswers: questions[currentQuestionIndex].answers
+        .filter((a) => a.revealed)
+        .map((a) => a.text),
+    };
+
+    fs.writeFile(saveFilePath, JSON.stringify(gameState, null, 2), (err) => {
+      if (err) {
+        console.error("Ошибка сохранения состояния игры:", err);
+      } else {
+        console.log("Состояние игры сохранено.");
+      }
+    });
+  }
+};
+
+// Функция загрузки состояния
+const loadGameState = () => {
+  if (fs.existsSync(saveFilePath)) {
+    try {
+      const data = fs.readFileSync(saveFilePath, "utf8");
+      return JSON.parse(data);
+    } catch (err) {
+      console.error("Ошибка загрузки состояния игры:", err);
+    }
+  }
+  return null;
+};
+
 const updateScores = () => {
   const scores = players.reduce((acc, player) => {
     acc[player.id] = player.score;
@@ -38,6 +74,22 @@ const updateScores = () => {
   }, {});
   io.emit("updateScores", scores);
 };
+
+const savedState = loadGameState();
+if (savedState) {
+  currentQuestionIndex = savedState.currentQuestionIndex;
+
+  // Восстанавливаем открытые ответы
+  if (currentQuestionIndex < questions.length) {
+    questions[currentQuestionIndex].answers.forEach((a) => {
+      a.revealed = savedState.revealedAnswers.includes(a.text);
+    });
+  }
+
+  console.log("Состояние игры загружено.");
+} else {
+  console.log("Файл состояния отсутствует или поврежден, начинаем новую игру.");
+}
 
 io.on("connection", (socket) => {
   console.log("A user connected", socket.id);
@@ -88,6 +140,7 @@ io.on("connection", (socket) => {
         io.emit("revealAnswer", question.answers);
         io.emit("updatePlayers", players);
 
+        saveGameState();
         updateScores();
       }
     }
@@ -115,6 +168,7 @@ io.on("connection", (socket) => {
         newQuestion: nextQuestion.text,
         possibleAnswers: nextQuestion.answers,
       });
+      saveGameState();
       io.emit("updatePlayers", players);
     } else {
       // Находим победителя
@@ -190,6 +244,7 @@ socket.on("goToQuestion", (questionId) => {
         possibleAnswers: questions[0].answers,
       });
     }
+    saveGameState();
   });
 
   // Отключение игрока
