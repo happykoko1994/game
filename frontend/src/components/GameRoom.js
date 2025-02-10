@@ -19,7 +19,6 @@ export default function GameRoom() {
   const [showAdminControls, setShowAdminControls] = useState(false);
   const [showDice, setShowDice] = useState(false);
   const [winner, setWinner] = useState(null);
-  const [isConnected, setIsConnected] = useState(true);
   const [serverReady, setServerReady] = useState(false);
   const [dots, setDots] = useState(".");
 
@@ -51,7 +50,6 @@ export default function GameRoom() {
         setShowWinnerPopup(true);
       });
 
-      // Очистка при размонтировании компонента
       return () => {
         socket.off('updatePlayers', handleUpdatePlayers);
         socket.off('question', handleQuestion);
@@ -60,7 +58,19 @@ export default function GameRoom() {
         socket.off('endGame');
       };
     
-  }, []); // useEffect сработает, когда isConnected изменится
+  }, []);
+
+  useEffect(() => {
+  const handleDisconnect = () => {
+    setLogs((prevLogs) => [...prevLogs, "SERVER : Соединение с сервером потеряно."]);
+  };
+
+  socket.on("disconnect", handleDisconnect);
+
+  return () => {
+    socket.off("disconnect", handleDisconnect);
+  };
+}, []);
 
   useEffect(() => {
     socket.on("revealAnswer", (updatedAnswers) => {
