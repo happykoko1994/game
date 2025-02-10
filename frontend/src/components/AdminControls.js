@@ -33,6 +33,29 @@ export default function AdminControls({
     };
   }, []);
 
+  useEffect(() => {
+    const handleUpdateGameState = (gameState) => {
+      localStorage.setItem("gameState", JSON.stringify(gameState));
+    };
+  
+    socket.on("updateGameState", handleUpdateGameState);
+  
+    return () => {
+      socket.off("updateGameState", handleUpdateGameState);
+    };
+  }, []);
+  
+
+  const restoreGame = () => {
+    const savedGameState = localStorage.getItem("gameState");
+  
+    if (savedGameState) {
+      socket.emit("restoreGameState", JSON.parse(savedGameState));
+    } else {
+      alert("Нет сохранённой игры!");
+    }
+  };
+  
 
   const handleShowAnswers = () => {
     setShowAnswers((prev) => !prev);
@@ -116,6 +139,10 @@ export default function AdminControls({
         <span className={styles.text}>Новая игра</span>
         <img className={styles.icon} src="/name.svg" alt="Перейти к вопросу" />
       </button>
+      <button onClick={restoreGame} className={`${styles.button} ${styles.newGameButton}`}>
+      <span className={styles.text}>К прошлой игре</span>
+        <img className={styles.icon} src="/back.svg" alt="Предыдущая игра" />
+        </button>
       <div className={styles.container}>
         <button onClick={handleShowAnswers} className={styles.button}>
           <span className={styles.text}>

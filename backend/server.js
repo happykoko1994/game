@@ -30,6 +30,20 @@ const isSimilar = require("./utils/levenshtein");
 let players = [];
 let currentQuestionIndex = 0;
 
+const saveGameState = () => {
+  if (currentQuestionIndex < questions.length) {
+    const gameState = {
+      currentQuestionIndex,
+      revealedAnswers: questions[currentQuestionIndex].answers
+        .filter((a) => a.revealed)
+        .map((a) => a.text)
+    };
+
+    // Отправляем всем клиентам обновленное состояние
+    io.emit("updateGameState", gameState);
+  }
+};
+
 const updateScores = () => {
   const scores = players.reduce((acc, player) => {
     acc[player.id] = player.score;
@@ -87,6 +101,7 @@ io.on("connection", (socket) => {
         io.emit("revealAnswer", question.answers);
         io.emit("updatePlayers", players);
 
+        saveGameState()
         updateScores();
       }
     }
@@ -123,6 +138,7 @@ io.on("connection", (socket) => {
       );
       io.emit("endGame", { winner: winner?.name || "No winner" });
     }
+    saveGameState();
   });
   // Переход к предыдущему вопросу (или к последнему, если на первом)
 socket.on("prevQuestion", () => {
@@ -189,7 +205,35 @@ socket.on("goToQuestion", (questionId) => {
         possibleAnswers: questions[0].answers,
       });
     }
+    saveGameState();
   });
+
+  socket.on("restoreGameState", (clientGameState) => {
+    if (clientGameState) {
+      currentQuestionIndex = clientGameState.currentQuestionIndex;
+  
+      // Восстанавливаем открытые ответы
+      if (currentQuestionIndex < questions.length) {
+        questions[currentQuestionIndex].answers.forEach((a) => {
+          a.revealed = clientGameState.revealedAnswers.includes(a.text);
+        });
+      }
+  
+      console.log("Игра восстановлена от клиента.");
+  
+      // Обновляем всех клиентов
+      saveGameState();
+      io.emit("question", {
+        newQuestion: questions[currentQuestionIndex].text,
+        possibleAnswers: questions[currentQuestionIndex].answers,
+      });
+
+      // Явно отправляем открытые ответы
+      io.emit("revealAnswer", questions[currentQuestionIndex].answers);
+    }
+});
+
+  
 
   // Отключение игрока
   socket.on("disconnect", () => {
