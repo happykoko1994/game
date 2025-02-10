@@ -18,7 +18,7 @@ require("dotenv").config();
 const cors = require("cors");
 
 const PORT = process.env.PORT || 4000;
-const saveFilePath = path.join(__dirname, "gameState.json");
+const saveFilePath = "/tmp/gameState.json";
 
 app.use(
   cors({
