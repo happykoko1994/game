@@ -64,9 +64,9 @@ module.exports = [
     {
         text: "Самый известный глупый персонаж?",
         answers: [
-            { text: "Патрик (Губка Боб)", points: 40 },
-            { text: "Джои (Друзья)", points: 80 },
-            { text: "Сид (Ледниковый период)", points: 120 },
+            { text: "Патрик", points: 40 },
+            { text: "Джои", points: 80 },
+            { text: "Сид", points: 120 },
             { text: "Мистер Бин", points: 160 },
             { text: "Гомер Симпсон", points: 200 },
         ],
